@@ -1,0 +1,29 @@
+/samba-project/node_modules
+
+/samba-project/.gitignore
+/samba-project/README.md
+
+# dependencies
+
+/samba-project/.pnp
+/samba-project/.pnp.js
+
+# testing
+/samba-project/coverage
+
+# production
+/samba-project/build
+
+# misc
+/samba-project/.DS_Store
+/samba-project/.env.local
+/samba-project/.env.development.local
+/samba-project/.env.test.local
+/samba-project/.env.production.local
+
+/samba-project/npm-debug.log*
+/samba-project/yarn-debug.log*
+/samba-project/yarn-error.log*
+
+/samba-backend/dist
+/samba-backend/node_modules
