@@ -9,10 +9,10 @@ const pool = new Pool({
     port: 5432,
   });
 
-const getEscuelaSambalData = async (req: Request, res: Response) => {
+const getHistIntegrante = async (req: Request, res: Response) => {
   try {
     const client = await pool.connect();
-    const result = await client.query("SELECT * FROM MAVescuela_samba");
+    const result = await client.query("SELECT * FROM MAVhist_integrante");
     const registros = result.rows;
     client.release(true);
     res.status(200).json(registros)
@@ -22,12 +22,12 @@ const getEscuelaSambalData = async (req: Request, res: Response) => {
   }
 };
 
-const insertEscuelaSamba = async (req: Request, res: Response) => {
+const insertHistIntegrante = async (req: Request, res: Response) => {
   try {
-    const request = req.body
+    const request = req.body;
     const client = await pool.connect();
-    await client.query(`INSERT INTO MAVescuela_samba (historia, sede, fecha_fundacion, nombre_escuela)
-    VALUES ($1, $2, $3, $4)`, [request.historia, request.sede, request.fecha_fundacion, request.nombre_escuela]);
+    await client.query(`INSERT INTO MAVhist_integrante (fecha_inicio, fecha_fin, autoridad, cod_escuela_samba, cod_integrante_escuela)
+                VALUES ($1, $2, $3, $4, $5)`, [request.fecha_inicio, request.fecha_fin, request.autoridad, request.cod_escuela_samba, request.cod_integrante_escuela]);
     client.release(true)
     res.status(200).json({message:"Registro Satisfactorio"})
   } catch (err) {
@@ -36,11 +36,11 @@ const insertEscuelaSamba = async (req: Request, res: Response) => {
   }
 };
 
-const deleteEscuelaSamba = async(req:Request, res:Response)=>{
+const deleteHistIntegrante = async(req:Request, res:Response)=>{
   try{
-    const id = req.params.id
+    const params = req.params
     const client = await pool.connect();
-    await client.query('DELETE FROM MAVescuela_samba WHERE codigo = $1', [id]);
+    await client.query('DELETE FROM MAVhistIntegrante WHERE cod_escuela_samba = $1, cod_integrante_escuela = $2, fecha_inicio = $3', [params.ces, params.cie, params.fi]);
     client.release(true)
     res.status(200).json({message:"Dato eliminado de manera satisfactoria"})
   }catch(err){
@@ -49,11 +49,12 @@ const deleteEscuelaSamba = async(req:Request, res:Response)=>{
   }
 }
 
-const updateEscuelaSamba = async(req:Request, res:Response)=>{
+const updateHistIntegrante = async(req:Request, res:Response)=>{
   try{
     const request = req.body
+    const params = req.params
     const client = await pool.connect();
-    await client.query("UPDATE MAVescuela_samba SET historia = $1, sede = $2, fecha_fundacion = $3, nombre_escuela = $4 WHERE codigo = $5",[request.historia, request.sede, request.fecha_fundacion, request.nombre_escuela, req.params.id]);
+    await client.query("UPDATE MAVhist_integrante SET fecha_inicio = $1, fecha_fin = $2, autoridad = $3 WHERE cod_escuela_samba = $4, cod_integrante_escuela = $5",[request.fecha_inicio, request.fecha_fin, request.autoridad, params.ces, params.cie]);
     client.release(true)
     res.status(200).json({message:"Dato actualizado de manera satisfactoria"})
   }catch(err){
@@ -62,4 +63,4 @@ const updateEscuelaSamba = async(req:Request, res:Response)=>{
   }
 }
 
-export {getEscuelaSambalData, insertEscuelaSamba, deleteEscuelaSamba, updateEscuelaSamba}
+export {getHistIntegrante, insertHistIntegrante, deleteHistIntegrante, updateHistIntegrante}

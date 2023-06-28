@@ -9,10 +9,10 @@ const pool = new Pool({
     port: 5432,
   });
 
-const getEscuelaSambalData = async (req: Request, res: Response) => {
+const getRol = async (req: Request, res: Response) => {
   try {
     const client = await pool.connect();
-    const result = await client.query("SELECT * FROM MAVescuela_samba");
+    const result = await client.query("SELECT * FROM MAVrol");
     const registros = result.rows;
     client.release(true);
     res.status(200).json(registros)
@@ -22,12 +22,12 @@ const getEscuelaSambalData = async (req: Request, res: Response) => {
   }
 };
 
-const insertEscuelaSamba = async (req: Request, res: Response) => {
+const insertRol = async (req: Request, res: Response) => {
   try {
-    const request = req.body
+    const request = req.body;
     const client = await pool.connect();
-    await client.query(`INSERT INTO MAVescuela_samba (historia, sede, fecha_fundacion, nombre_escuela)
-    VALUES ($1, $2, $3, $4)`, [request.historia, request.sede, request.fecha_fundacion, request.nombre_escuela]);
+    await client.query(`INSERT INTO MAVrol (nombre_rol, descripcion)
+                VALUES ($1, $2)`, [request.nombre_color]);
     client.release(true)
     res.status(200).json({message:"Registro Satisfactorio"})
   } catch (err) {
@@ -36,11 +36,11 @@ const insertEscuelaSamba = async (req: Request, res: Response) => {
   }
 };
 
-const deleteEscuelaSamba = async(req:Request, res:Response)=>{
+const deleteRol = async(req:Request, res:Response)=>{
   try{
     const id = req.params.id
     const client = await pool.connect();
-    await client.query('DELETE FROM MAVescuela_samba WHERE codigo = $1', [id]);
+    await client.query('DELETE FROM MAVrol WHERE codigo = $1', [id]);
     client.release(true)
     res.status(200).json({message:"Dato eliminado de manera satisfactoria"})
   }catch(err){
@@ -49,11 +49,11 @@ const deleteEscuelaSamba = async(req:Request, res:Response)=>{
   }
 }
 
-const updateEscuelaSamba = async(req:Request, res:Response)=>{
+const updateRol = async(req:Request, res:Response)=>{
   try{
     const request = req.body
     const client = await pool.connect();
-    await client.query("UPDATE MAVescuela_samba SET historia = $1, sede = $2, fecha_fundacion = $3, nombre_escuela = $4 WHERE codigo = $5",[request.historia, request.sede, request.fecha_fundacion, request.nombre_escuela, req.params.id]);
+    await client.query("UPDATE MAVrol SET nombre_rol = $1, descripcion = $2 WHERE codigo = $3",[request.nombre_rol, request.descripcion, req.params.id]);
     client.release(true)
     res.status(200).json({message:"Dato actualizado de manera satisfactoria"})
   }catch(err){
@@ -62,4 +62,4 @@ const updateEscuelaSamba = async(req:Request, res:Response)=>{
   }
 }
 
-export {getEscuelaSambalData, insertEscuelaSamba, deleteEscuelaSamba, updateEscuelaSamba}
+export {getRol, deleteRol, insertRol, updateRol}
