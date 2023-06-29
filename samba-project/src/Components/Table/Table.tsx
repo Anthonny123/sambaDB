@@ -475,7 +475,201 @@ export default function Table({data, deleteData, handleOpen, setIdModify, curren
                   </tr>
                 ))}
               </table>
-              : ""
+              : currentTable === "Organizacion del Carnaval" ?
+              <table>
+                {tdList["Organizacion del Carnaval"].map((e:any) => <td>{e}</td>)}
+                {data.map((e: any) => (
+                  <tr>
+                    <td>{e.ano}</td>
+                    <td>{e.cod_escuela_samba}</td>
+                    <td>{e.cod_integrante_escuela}</td>
+                    <td>{e.fecha_inicio}</td>
+                    <td>
+                      <button
+                        id={e.codigo}
+                        onClick={(e) => deleteData(parseInt(e.currentTarget.id))}
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                    <td>
+                      <button id={e.codigo} onClick={(e)=>{
+                        setIdModify(parseInt(e.currentTarget.id));
+                        handleOpen()
+                        }}>
+                        Modificar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </table>
+              : currentTable === "Ganadores" ?
+              <table>
+                {tdList["Ganadores"].map((e:any) => <td>{e}</td>)}
+                {data.map((e: any) => (
+                  <tr>
+                    <td>{e.ano}</td>
+                    <td>{e.cod_premio_especial}</td>
+                    <td>{e.cod_auxiliar}</td>
+                    <td>{e.fecha_inicio}</td>
+                    <td>{e.cod_integrante_escuela}</td>
+                    <td>{e.cod_escuela_samba}</td>
+                    <td>{e.cod_Escuela_samba_int}</td>
+                    <td>
+                      <button
+                        id={e.codigo}
+                        onClick={(e) => deleteData(parseInt(e.currentTarget.id))}
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                    <td>
+                      <button id={e.codigo} onClick={(e)=>{
+                        setIdModify(parseInt(e.currentTarget.id));
+                        handleOpen()
+                        }}>
+                        Modificar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </table>
+              : currentTable === "Colores de Las escuelas" ?
+              <table>
+                {tdList["Colores de Las escuelas"].map((e:any) => <td>{e}</td>)}
+                {data.map((e: any) => (
+                  <tr>
+                    <td>{e.cod_escuela_samba}</td>
+                    <td>{e.cod_color}</td>
+                    <td>
+                      <button
+                        id={e.codigo}
+                        onClick={(e) => deleteData(parseInt(e.currentTarget.id))}
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                    <td>
+                      <button id={e.codigo} onClick={(e)=>{
+                        setIdModify(parseInt(e.currentTarget.id));
+                        handleOpen()
+                        }}>
+                        Modificar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </table>
+              : currentTable === "Autores" ?
+              <table>
+                {tdList["Autores"].map((e:any) => <td>{e}</td>)}
+                {data.map((e: any) => (
+                  <tr>
+                    <td>{e.cod_samba}</td>
+                    <td>{e.cod_integrante_escuela}</td>
+                    <td>{e.cod_escuela_samba}</td>
+                    <td>{e.fecha_inicio}</td>
+                    <td>
+                      <button
+                        id={e.codigo}
+                        onClick={(e) => deleteData(parseInt(e.currentTarget.id))}
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                    <td>
+                      <button id={e.codigo} onClick={(e)=>{
+                        setIdModify(parseInt(e.currentTarget.id));
+                        handleOpen()
+                        }}>
+                        Modificar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </table>
+              : currentTable === "Habilidades Integrantes" ?
+              <table>
+                {tdList["Habilidades de Integrantes"].map((e:any) => <td>{e}</td>)}
+                {data.map((e: any) => (
+                  <tr>
+                    <td>{e.cod_integrante_escuela}</td>
+                    <td>{e.cod_habilidad}</td>
+                    <td>
+                      <button
+                        id={e.codigo}
+                        onClick={(e) => deleteData(parseInt(e.currentTarget.id))}
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                    <td>
+                      <button id={e.codigo} onClick={(e)=>{
+                        setIdModify(parseInt(e.currentTarget.id));
+                        handleOpen()
+                        }}>
+                        Modificar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </table>
+              : currentTable === "Parentescos" ?
+              <table>
+                {tdList["Parentescos"].map((e:any) => <td>{e}</td>)}
+                {data.map((e: any) => (
+                  <tr>
+                    <td>{e.nombre_parentesco}</td>
+                    <td>{e.cod_integrante_escuela1}</td>
+                    <td>{e.cod_integrante_escuela2}</td>
+                    <td>
+                      <button
+                        id={e.codigo}
+                        onClick={(e) => deleteData(parseInt(e.currentTarget.id))}
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                    <td>
+                      <button id={e.codigo} onClick={(e)=>{
+                        setIdModify(parseInt(e.currentTarget.id));
+                        handleOpen()
+                        }}>
+                        Modificar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </table>
+              : currentTable === "Lugares" ?
+              <table>
+                {tdList["Lugares"].map((e:any) => <td>{e}</td>)}
+                {data.map((e: any) => (
+                  <tr>
+                    <td>{e.codigo}</td>
+                    <td>{e.nombre}</td>
+                    <td>{e.tipo}</td>
+                    <td>{e.region}</td>
+                    <td>
+                      <button
+                        id={e.codigo}
+                        onClick={(e) => deleteData(parseInt(e.currentTarget.id))}
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                    <td>
+                      <button id={e.codigo} onClick={(e)=>{
+                        setIdModify(parseInt(e.currentTarget.id));
+                        handleOpen()
+                        }}>
+                        Modificar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </table>
+              : null
             }
         </>
     )

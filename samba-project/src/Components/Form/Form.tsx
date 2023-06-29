@@ -33,8 +33,21 @@ import {
   /* Donacion Patrocinadores */
   getDonacionesPatrocinadores,
   /* Historial de Titulos de las escuelas */
-  getTitulosEscuelas
-
+  getTitulosEscuelas,
+  /* Organizacion del Carnaval */
+  getOrganizacionCarnaval,
+  /* Ganadores */
+  getGanadores,
+  /* Colores de las Escuelas */
+  getColoresEscuelas,
+  /* Autores */
+  getAutores,
+  /* Habilidades Integrantes */
+  getHabilidadesIntegrantes,
+  /* Parentesco */
+  getParentesco,
+  /* Lugares */
+  getLugares
 } from "../../api/api";
 import "./style.css";
 import React from "react";
@@ -169,6 +182,48 @@ export default function Form() {
       }
       if (currentTable === "Historial de Titulos de las Escuelas") {
         const res = await getTitulosEscuelas().then((e: any) =>
+          setData(e.data)
+        );
+        return res;
+      }
+      if (currentTable === "Organizacion del Carnaval") {
+        const res = await getOrganizacionCarnaval().then((e: any) =>
+          setData(e.data)
+        );
+        return res;
+      }
+      if (currentTable === "Ganadores") {
+        const res = await getGanadores().then((e: any) =>
+          setData(e.data)
+        );
+        return res;
+      }
+      if (currentTable === "Colores de Las escuelas") {
+        const res = await getColoresEscuelas().then((e: any) =>
+          setData(e.data)
+        );
+        return res;
+      }
+      if (currentTable === "Autores") {
+        const res = await getAutores().then((e: any) =>
+          setData(e.data)
+        );
+        return res;
+      }
+      if (currentTable === "Habilidades de Integrantes") {
+        const res = await getHabilidadesIntegrantes().then((e: any) =>
+          setData(e.data)
+        );
+        return res;
+      }
+      if (currentTable === "Parentescos") {
+        const res = await getParentesco().then((e: any) =>
+          setData(e.data)
+        );
+        return res;
+      }
+      if (currentTable === "Lugares") {
+        const res = await getLugares().then((e: any) =>
           setData(e.data)
         );
         return res;

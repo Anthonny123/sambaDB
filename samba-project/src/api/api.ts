@@ -54,14 +54,22 @@ export const getDonacionesPatrocinadores = ()=> axios.get(`${API}/historico-patr
 export const getTitulosEscuelas = ()=> axios.get(`${API}/historico-titulo-escuela/obtener-historico-titulo-escuela`)
 
 /* Organizacion del Carnaval */
-//export const getOrganizacionCarnaval = ()=> axios.get(`${API}/historico-titulo-escuela/obtener-historico-titulo-escuela`)
+export const getOrganizacionCarnaval = ()=> axios.get(`${API}/organizacion-carnaval/obtener-organizacion-carnaval`)
 
-/* 
-    "",
-    "Ganadores",
-    "Colores de Las escuelas",
-    "Autores",
-    "Habilidades de Integrantes",
-    "Parentescos",
-    "Lugares"
-*/
+/* Ganadores */
+export const getGanadores = ()=> axios.get(`${API}/ganador/obtener-ganador`)
+
+/* Colores de las escuelas */
+export const getColoresEscuelas = ()=> axios.get(`${API}/colores-de-escuelas/obtener-colores-de-escuela`)
+
+/* Autores */
+export const getAutores = ()=> axios.get(`${API}/autor/obtener-autores`)
+
+/* Habilidades Integrantes */
+export const getHabilidadesIntegrantes = ()=> axios.get(`${API}/habilidad-integrante/obtener-habilidades-integrantes`)
+
+/* Parentesco */
+export const getParentesco = ()=> axios.get(`${API}/parentesco/obtener-parentesco`)
+
+/* Lugares */
+export const getLugares = ()=> axios.get(`${API}/lugar/obtener-datos-lugar`)
