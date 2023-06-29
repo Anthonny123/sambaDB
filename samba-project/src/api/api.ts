@@ -32,6 +32,8 @@ export const getPatrocinadoresNaturales = ()=> axios.get(`${API}/patrocinador-na
 export const deletePatrocinadoresNaturales = (id:any)=>{
     axios.delete(`${API}/patrocinador-natural/eliminar-patrocinador-natural/${id}`)
 }
+export const registrarPatrocinadorNatural = (patrocinadorNatural:any)=> axios.post(`${API}/patrocinador-natural/insertar-datos-patrocinador-natural`, patrocinadorNatural)
+
 /*Patrocinadores Juridicos*/
 export const getPatrocinadoresJuridicos = ()=> axios.get(`${API}/patrocinador-juridico/obtener-datos-patrocinador-juridico`)
 export const deletePatrocinadoresJuridicos = (id:any)=>{

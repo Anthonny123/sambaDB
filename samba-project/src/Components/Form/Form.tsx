@@ -21,6 +21,7 @@ import {
   /* Patrocinadores Naturales */
   getPatrocinadoresNaturales,
   deletePatrocinadoresNaturales,
+  registrarPatrocinadorNatural,
   /* Patrocinadores Juridicos */
   getPatrocinadoresJuridicos,
   deletePatrocinadoresJuridicos,
@@ -347,7 +348,7 @@ export default function Form() {
         <form
           className="initial-form"
           onSubmit={handleSubmit(async (values) => {
-            const res = await registerIntegranteEscuela(values);
+            const res = await registrarRol(values);
           })}
         >
           <input
@@ -366,7 +367,7 @@ export default function Form() {
         <form
           className="initial-form"
           onSubmit={handleSubmit(async (values) => {
-            const res = await registrarRol(values);
+            const res = await registrarPatrocinadorNatural(values);
           })}
         >
           <input
