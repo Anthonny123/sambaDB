@@ -19,6 +19,10 @@ import { getPatrocinadorDonacion, insertPatrocinadorDonacion, deletePatrocinador
 import { getHistTituloEscuela, insertHistTituloEscuela, deleteHistTituloEscuela, updateHistTituloEscuela } from "../controllers/histTituloEscuelaController";
 import { getOrganizacionCarnaval, insertOrganizacionCarnaval, deleteOrganizacionCarnaval, updateOrganizacionCarnaval } from "../controllers/organizacionCarnavalController";
 import { getGanador, insertGanador, deleteGanador, updateGanador } from "../controllers/ganadorController";
+import { getColoresEscuelas, insertColoresEscuela, deleteColoresEscuela, updateColoresEscuela } from "../controllers/escuelaColores";
+import { getAutores, insertAutores, deleteAutores, updateAutores } from "../controllers/autoresControllers";
+import { getHabilidadesIntegrantes, insertHabilidadesIntegrantes, deleteHabilidadesIntegrantes, updateHabilidadesIntegrantes } from "../controllers/habilidadesIntegrantesController";
+import { getParentesco, insertParentesco, deleteParentesco, updateParentesco } from "../controllers/parentescoController";
 
 const sambaRouter = express.Router();
 const escuelaSambaRouter = express.Router();
@@ -38,12 +42,40 @@ const patrocinadorDonacionRouter = express.Router();
 const histTituloEscuelaRouter = express.Router();
 const organizacionCarnavalRouter = express.Router();
 const ganadorRouter = express.Router();
+const coloresEscuelasRouter = express.Router();
+const autoresRouter = express.Router()
+const habilidadIntegranteRoute = express.Router()
+const parentescoRouter = express.Router();
+
+/* RUTAS PARENTESCO */
+parentescoRouter.route('/obtener-parentesco').get(getParentesco)
+parentescoRouter.route('/insertar-parentesco').post(insertParentesco)
+parentescoRouter.route('/eliminar-parentesco/:cie1/:cie2').delete(deleteParentesco)
+parentescoRouter.route('/actualizar-parentesco/:cie1/:cie2').put(updateParentesco)
+
+/* RUTAS HABILIDADES E INTEGRANTE */
+habilidadIntegranteRoute.route('/obtener-habilidades-integrantes').get(getHabilidadesIntegrantes)
+habilidadIntegranteRoute.route('/insertar-habilidades-integrantes').post(insertHabilidadesIntegrantes)
+habilidadIntegranteRoute.route('/eliminar-habilidades-integrantes/:cie/:hab').delete(deleteHabilidadesIntegrantes)
+habilidadIntegranteRoute.route('/actualizar-habilidades-integrantes/:cie/:hab').put(updateHabilidadesIntegrantes)
+
+/* RUTA DE AUTORES */
+autoresRouter.route('/obtener-autores').get(getAutores)
+autoresRouter.route('/insertar-autores').post(insertAutores)
+autoresRouter.route('/eliminar-autores/:cs/:cie/:ces/:fi').delete(deleteAutores)
+autoresRouter.route('/actualizar-autores/:cs/:cie/:ces/:fi').put(updateAutores)
+
+/* RUTA COLORES ESCUELAS  */
+coloresEscuelasRouter.route('/obtener-colores-de-escuela').get(getColoresEscuelas)
+coloresEscuelasRouter.route('/insertar-colores-de-escuelas').post(insertColoresEscuela)
+coloresEscuelasRouter.route('/eliminar-colores-de-escuelas/:ces/:cc').delete(deleteColoresEscuela)
+coloresEscuelasRouter.route('/actualizar-colores-de-escuelas/:ces/:cc').put(updateColoresEscuela)
 
 /* RUTA GANADORES */
 ganadorRouter.route('/obtener-ganador').get(getGanador)
 ganadorRouter.route('/insertar-ganador').post(insertGanador)
-ganadorRouter.route('/eliminar-ganador/:cpe/:ano').delete(getGanador)
-ganadorRouter.route('/actualizar-ganador/:cpe/:ano').put(getGanador)
+ganadorRouter.route('/eliminar-ganador/:cpe/:ano').delete(deleteGanador)
+ganadorRouter.route('/actualizar-ganador/:cpe/:ano').put(updateGanador)
 
 /* RUTA ORGANIZACION CARNAVAL */
 organizacionCarnavalRouter.route('/obtener-organizacion-carnaval').get(getOrganizacionCarnaval)
@@ -163,4 +195,5 @@ export default [sambaRouter, escuelaSambaRouter, integranteEscuelaSambaRouter, p
      patrocinadorNaturalRouter, habilidadRouter, colorRouter, rolRouter,
       lugarRouter, premioEspecialRouter, telefonoRouter,
        histIntegranteRouter, eventoSemAnualRouter, histPatrocinadorRouter, 
-       patrocinadorDonacionRouter, histTituloEscuelaRouter, organizacionCarnavalRouter, ganadorRouter]
+       patrocinadorDonacionRouter, histTituloEscuelaRouter, organizacionCarnavalRouter, ganadorRouter,
+     autoresRouter, habilidadIntegranteRoute, parentescoRouter, coloresEscuelasRouter]

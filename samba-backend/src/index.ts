@@ -20,6 +20,10 @@ import histPatrocinadorDonacionRouter from "./routes/routes"
 import histTituloEscuelaRouter from "./routes/routes"
 import organizacionCarnavalRouter from "./routes/routes"
 import ganadorRouter from "./routes/routes"
+import coloresEscuelasRouter from "./routes/routes"
+import autoresRouter from "./routes/routes"
+import habilidadIntegranteRouter from "./routes/routes"
+import parentescoRouter from "./routes/routes"
 
 // Creación de la aplicación Express
 const app = express();
@@ -45,6 +49,10 @@ app.use('/historico-patrocinador-donador', histPatrocinadorDonacionRouter)
 app.use('/historico-titulo-escuela', histTituloEscuelaRouter)
 app.use('/organizacion-carnaval', organizacionCarnavalRouter)
 app.use('/ganador', ganadorRouter)
+app.use('/colores-de-escuelas', coloresEscuelasRouter)
+app.use('/autor', autoresRouter)
+app.use('/habilidad-integrante', habilidadIntegranteRouter)
+app.use('/parentesco', parentescoRouter)
 
 
 // Inicio del servidor

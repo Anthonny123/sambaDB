@@ -12,7 +12,7 @@ const pool = new Pool({
 const getOrganizacionCarnaval = async (req: Request, res: Response) => {
   try {
     const client = await pool.connect();
-    const result = await client.query("SELECT * MAVorganizacion_carnaval");
+    const result = await client.query("SELECT * FROM MAVorganizacion_carnaval");
     const registros = result.rows;
     client.release(true);
     res.status(200).json(registros)

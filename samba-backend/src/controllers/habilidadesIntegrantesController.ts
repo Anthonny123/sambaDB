@@ -9,10 +9,10 @@ const pool = new Pool({
     port: 5432,
   });
 
-const getGanador = async (req: Request, res: Response) => {
+const getHabilidadesIntegrantes = async (req: Request, res: Response) => {
   try {
     const client = await pool.connect();
-    const result = await client.query("SELECT * FROM MAVganador");
+    const result = await client.query("SELECT * FROM MAVI_H");
     const registros = result.rows;
     client.release(true);
     res.status(200).json(registros)
@@ -22,12 +22,12 @@ const getGanador = async (req: Request, res: Response) => {
   }
 };
 
-const insertGanador= async (req: Request, res: Response) => {
+const insertHabilidadesIntegrantes = async (req: Request, res: Response) => {
   try {
     const request = req.body;
     const client = await pool.connect();
-    await client.query(`INSERT INTO MAVganador (ano, cod_premio_especial, fecha_inicio, cod_escuela_samba_int, cod_integrante_escuela, cod_escuela_samba)
-                VALUES ($1, $2, $3, $4, $5, $6)`, [request.ano, request.cod_premio_especial, request.fecha_inicio, request.cod_escuela_samba_int, request.cod_integrante_escuela, request.cod_escuela_samba]);
+    await client.query(`INSERT INTO MAVI_H (cod_integrante_escuela, cod_habilidad)
+                VALUES ($1, $2)`, [request.cod_integrante_escuela, request.cod_habilidad]);
     client.release(true)
     res.status(200).json({message:"Registro Satisfactorio"})
   } catch (err) {
@@ -36,12 +36,11 @@ const insertGanador= async (req: Request, res: Response) => {
   }
 };
 
-const deleteGanador = async(req:Request, res:Response)=>{
+const deleteHabilidadesIntegrantes = async(req:Request, res:Response)=>{
   try{
     const params = req.params
-    const request = req.body
     const client = await pool.connect();
-    await client.query('DELETE FROM MAVganador WHERE cod_premio_especial = $1, ano = $2', [params.cpe, params.ano]);
+    await client.query('DELETE FROM MAVI_H WHERE cod_integrante_escuela = $1, cod_habilidad = $2', [params.cie, params.hab]);
     client.release(true)
     res.status(200).json({message:"Dato eliminado de manera satisfactoria"})
   }catch(err){
@@ -50,12 +49,12 @@ const deleteGanador = async(req:Request, res:Response)=>{
   }
 }
 
-const updateGanador= async(req:Request, res:Response)=>{
+const updateHabilidadesIntegrantes= async(req:Request, res:Response)=>{
   try{
     const request = req.body
     const params = req.params
     const client = await pool.connect();
-    await client.query("UPDATE MAVganador SET ano = $1, cod_premio_especial = $2, fecha_inicio = $3, cod_escuela_samba_int = $4, cod_integrante_escuela = $5, cod_escuela_samba = $6 WHERE cod_premio_especial = $7, ano = $8",[request.ano, request.cod_premio_especial, request.fecha_inicio, request.cod_escuela_samba_int, request.cod_integrante_escuela, request.cod_escuela_samba, params.cpe, params.ano]);
+    await client.query("UPDATE MAVI_H SET cod_integrante_escuela = $1, cod_habilidad = $2 WHERE cod_integrante_escuela = $1, cod_habilidad = $2",[request.cod_integrante_escuela, request.cod_habilidad, params.cie, params.hab]);
     client.release(true)
     res.status(200).json({message:"Dato actualizado de manera satisfactoria"})
   }catch(err){
@@ -64,4 +63,4 @@ const updateGanador= async(req:Request, res:Response)=>{
   }
 }
 
-export {getGanador, insertGanador, deleteGanador, updateGanador}
+export {getHabilidadesIntegrantes, insertHabilidadesIntegrantes, deleteHabilidadesIntegrantes, updateHabilidadesIntegrantes}
