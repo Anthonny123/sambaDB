@@ -1,0 +1,2147 @@
+--Sql Querys
+
+-- CREATE TABLES
+
+CREATE TABLE MAVhabilidad (
+    codigo SERIAL PRIMARY KEY NOT NULL,
+    nombre_habilidad VARCHAR(30) NOT NULL,
+    descripcion VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE MAVintegrante_escuela (
+    codigo SERIAL PRIMARY KEY NOT NULL,
+    primer_nombre VARCHAR(30) NOT NULL,
+    segundo_nombre VARCHAR(30),
+    primer_apellido VARCHAR(30) NOT NULL,
+    segundo_apellido VARCHAR(30) NOT NULL,
+    documento_identidad INT,
+    apodo VARCHAR(30),
+    fecha_nacimiento DATE NOT NULL,
+    nacionalidad VARCHAR(30)
+);
+
+CREATE TABLE MAVcolor (
+    codigo SERIAL PRIMARY KEY NOT NULL,
+    nombre_color VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE MAVsamba (
+    codigo SERIAL PRIMARY KEY NOT NULL,
+    letra VARCHAR(1200) NOT NULL,
+    nombre_cancion VARCHAR(50) NOT NULL,
+    year_carnaval VARCHAR(30) NOT NULL,
+    tipo VARCHAR(30) CHECK (tipo IN ('Samba Enredo', 'Samba Bloco', 'Manchinha', 'Frevo', 'Maracatu', 'Samba Reggae'))
+);
+
+CREATE TABLE MAVrol (
+    codigo SERIAL PRIMARY KEY NOT NULL,
+    nombre_rol VARCHAR(30) NOT NULL,
+    descripcion VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE MAVpatrocinador_natural (
+    codigo SERIAL PRIMARY KEY NOT NULL,
+    documento_identidad INT NOT NULL,
+    primer_nombre VARCHAR(30) NOT NULL,
+    segundo_nombre VARCHAR(30),
+    primer_apellido VARCHAR(30) NOT NULL,
+    segundo_apellido VARCHAR(30),
+    fecha_nacimiento DATE NOT NULL,
+    contacto_email VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE MAVpatrocinador_juridico (
+    codigo SERIAL PRIMARY KEY NOT NULL,
+    nombre_empresa VARCHAR(30) NOT NULL,
+    contacto_email VARCHAR(40) NOT NULL,
+    mision VARCHAR(250)
+);
+
+CREATE TABLE MAVlugar ( 
+    codigo SERIAL PRIMARY KEY NOT NULL,
+    nombre VARCHAR(30) NOT NULL,
+    tipo VARCHAR(30) CHECK(tipo IN ('Ciudad', 'Estado')),
+    region VARCHAR(30) CHECK(region IN ('Norte', 'Noroeste', 'Oeste', 'Suroeste', 'Sur', 'Sureste', 'Este', 'Nordeste')),
+
+	cod_lugar_padre INT,
+	CONSTRAINT fk_lugar_padre FOREIGN KEY (cod_lugar_padre) REFERENCES MAVlugar(codigo)
+);
+
+CREATE TABLE MAVpremio_especial (
+    codigo SERIAL PRIMARY KEY NOT NULL,
+    nombre VARCHAR(30) NOT NULL,
+    tipo VARCHAR(30) CHECK(tipo IN('Escuela', 'Individual')),
+    descripcion VARCHAR(100) NOT NULL,
+	cod_lugar INT NOT NULL,
+	CONSTRAINT fk_cod_lugar FOREIGN KEY (cod_lugar) REFERENCES MAVlugar(codigo)
+);
+
+
+CREATE TABLE MAVescuela_samba (    
+    codigo SERIAL PRIMARY KEY NOT NULL,
+    historia VARCHAR(600) NOT NULL,
+    sede VARCHAR(30) NOT NULL,
+    fecha_fundacion DATE NOT NULL,
+    nombre_escuela VARCHAR(30) NOT NULL,
+	cod_lugar INT NOT NULL,
+	CONSTRAINT fk_cod_lugar FOREIGN KEY (cod_lugar) REFERENCES MAVlugar(codigo)
+);
+
+
+CREATE TABLE MAVtelefono ( 
+    codigo_internacional INT NOT NULL,
+    codigo_area INT NOT NULL,
+    numero_telefono INT NOT NULL,
+	cod_escuela_samba INT, 
+	cod_patrocinador_j INT,
+	cod_patrocinador_n INT,
+	
+        
+	CONSTRAINT pk_telefono PRIMARY KEY (codigo_internacional, codigo_area, numero_telefono),
+
+	CONSTRAINT fk_telefono_escuela foreign key (cod_escuela_samba) references MAVescuela_samba(codigo),
+	CONSTRAINT fk_telefono_patrocinador_juridico foreign key (cod_patrocinador_j) references MAVpatrocinador_juridico(codigo),
+	CONSTRAINT fk_telefono_patrocinador_natural foreign key (cod_patrocinador_n) references MAVpatrocinador_natural(codigo)
+);
+
+CREATE TABLE MAVhist_integrante (
+    fecha_inicio DATE NOT NULL,
+    fecha_fin DATE,
+    autoridad CHAR(2) CHECK(autoridad IN ('Si', 'No')),
+
+	cod_escuela_samba INT NOT NULL,
+	cod_integrante_escuela INT NOT NULL,
+	
+	
+	CONSTRAINT pk_hist_integrante PRIMARY KEY (cod_escuela_samba,cod_integrante_escuela, fecha_inicio),
+	CONSTRAINT fk_escuela FOREIGN KEY (cod_escuela_samba) REFERENCES MAVescuela_samba(codigo),
+	CONSTRAINT fk_integrante FOREIGN KEY (cod_integrante_escuela) REFERENCES MAVintegrante_escuela(codigo)
+);
+
+CREATE TABLE MAVevento_sem_anual (
+    codigo SERIAL NOT NULL,
+    nombre VARCHAR(30) NOT NULL,
+    descripcion VARCHAR(60),
+    tipo VARCHAR(30) CHECK (tipo IN ('Noche samba', 'Otro')),
+    fecha_inicio DATE NOT NULL,
+    fecha_fin DATE NOT NULL,
+    asistencia INT,
+    costo_unitario_reales INT NOT NULL,
+
+	cod_escuela_samba INT NOT NULL,
+	CONSTRAINT pk_evento_sem_anual PRIMARY KEY (cod_escuela_samba,codigo),
+	CONSTRAINT fk_escuela_samba FOREIGN KEY (cod_escuela_samba) REFERENCES MAVescuela_samba(codigo)
+);
+
+CREATE TABLE MAVhist_patrocinador ( 
+    codigo SERIAL NOT NULL,
+    fecha_inicio DATE NOT NULL,
+    fecha_fin DATE,
+
+	cod_escuela_samba INT NOT NULL,
+	cod_patrocinador_j INT,
+	cod_patrocinador_n INT,
+	
+	CONSTRAINT pk_hist_patrocinador PRIMARY KEY (cod_escuela_samba,codigo),
+	CONSTRAINT fk_cod_escuela_samba FOREIGN KEY (cod_escuela_samba) REFERENCES MAVescuela_samba(codigo),
+	CONSTRAINT fk_cod_patrocinador_j FOREIGN KEY (cod_patrocinador_j) REFERENCES MAVpatrocinador_juridico(codigo),
+	CONSTRAINT fk_cod_patrocinador_n FOREIGN KEY (cod_patrocinador_n) REFERENCES MAVpatrocinador_natural(codigo)
+);
+
+CREATE TABLE MAVpatrocinador_donacion ( 
+    codigo SERIAL NOT NULL,
+    monto_reales INT NOT NULL,
+    fecha_donacion DATE NOT NULL,
+
+	cod_escuela_samba INT NOT NULL,
+	cod_hist_patrocinador INT NOT NULL,
+
+	CONSTRAINT pk_patrocinador_donacion PRIMARY KEY (cod_escuela_samba,cod_hist_patrocinador,codigo),
+	CONSTRAINT fk_cod_hist_patrocinador FOREIGN KEY (cod_hist_patrocinador,cod_escuela_samba) REFERENCES MAVhist_patrocinador(cod_escuela_samba,codigo)
+	
+);
+
+
+CREATE TABLE MAVhist_titulo_escuela (
+    ano INT NOT NULL,
+    grupo VARCHAR(30),
+    monto_ganado_reales INT,
+
+	cod_escuela_samba INT NOT NULL,
+	CONSTRAINT pk_hist_titulo_escuela PRIMARY KEY (cod_escuela_samba,ano),
+	CONSTRAINT fk_cod_escuela_samba FOREIGN KEY (cod_escuela_samba) REFERENCES MAVescuela_samba(codigo)
+);
+
+
+CREATE TABLE MAVorganizacion_carnaval (
+    ano INT NOT NULL,
+    cod_escuela_samba INT NOT NULL,
+	cod_integrante_escuela INT NOT NULL,
+	fecha_inicio DATE NOT NULL,
+    cod_rol INT NOT NULL,
+
+	CONSTRAINT pk_organizacion_carnaval PRIMARY KEY (cod_escuela_samba,cod_integrante_escuela,fecha_inicio,cod_rol,ano),
+	CONSTRAINT fk_cod_hist_integrante FOREIGN KEY (cod_escuela_samba,cod_integrante_escuela,fecha_inicio) REFERENCES MAVhist_integrante(cod_escuela_samba,cod_integrante_escuela,fecha_inicio),
+	CONSTRAINT fk_cod_rol FOREIGN KEY (cod_rol) REFERENCES MAVrol(codigo)
+);
+
+CREATE TABLE MAVganador (
+    ano INT NOT NULL,
+	cod_premio_especial INT NOT NULL,
+	
+	fecha_inicio DATE,
+	cod_escuela_samba_int INT,
+	cod_integrante_escuela INT,
+	
+	cod_escuela_samba INT,
+
+	CONSTRAINT pk_ganador PRIMARY KEY (cod_premio_especial,ano),
+	CONSTRAINT fk_cod_premio_especial FOREIGN KEY (cod_premio_especial) REFERENCES MAVpremio_especial(codigo),
+	CONSTRAINT fk_hist_integrante FOREIGN KEY (cod_escuela_samba_int,cod_integrante_escuela,fecha_inicio) REFERENCES MAVhist_integrante(cod_escuela_samba,cod_integrante_escuela,fecha_inicio),
+	CONSTRAINT fk_cod_escuela_samba FOREIGN KEY (cod_escuela_samba) REFERENCES MAVescuela_samba(codigo)
+);
+
+CREATE TABLE MAVC_E (
+	cod_escuela_samba INT NOT NULL,
+	cod_color INT NOT NULL,
+
+	CONSTRAINT pk_c_e PRIMARY KEY (cod_escuela_samba,cod_color),
+	CONSTRAINT fk_cod_escuela_samba FOREIGN KEY (cod_escuela_samba) REFERENCES MAVescuela_samba(codigo),
+	CONSTRAINT fk_cod_color FOREIGN KEY (cod_color) REFERENCES MAVcolor(codigo));
+
+CREATE TABLE MAVautor (
+	cod_samba INT NOT NULL,
+	
+	cod_integrante_escuela INT NOT NULL,
+	cod_escuela_samba INT NOT NULL,
+	fecha_inicio DATE NOT NULL,
+
+	CONSTRAINT pk_autor PRIMARY KEY (cod_samba,cod_integrante_escuela,cod_escuela_samba,fecha_inicio),
+	CONSTRAINT fk_hist_integrante FOREIGN KEY (cod_escuela_samba,cod_integrante_escuela,fecha_inicio) REFERENCES MAVhist_integrante(cod_escuela_samba,cod_integrante_escuela,fecha_inicio),
+	CONSTRAINT fk_cod_samba FOREIGN KEY (cod_samba) REFERENCES MAVsamba(codigo));
+
+CREATE TABLE MAVI_H (
+	cod_integrante_escuela INT NOT NULL,
+	cod_habilidad INT NOT NULL,
+	
+	CONSTRAINT pk_I_H PRIMARY KEY (cod_integrante_escuela,cod_habilidad),
+	CONSTRAINT fk_cod_integrante_escuela FOREIGN KEY (cod_integrante_escuela) REFERENCES MAVintegrante_escuela(codigo),
+	CONSTRAINT fk_cod_habilidad FOREIGN KEY (cod_habilidad) REFERENCES MAVhabilidad(codigo));
+
+
+CREATE TABLE MAVparentesco ( 
+    nombre_parentesco VARCHAR(30) CHECK(nombre_parentesco IN ('Mama', 'Papa', 'Hermano', 'Hermana', 'Tio', 'Tia', 'Sobrino', 'Sobrina', 'Abuela', 'Abuelo', 'Nieto', 'Nieta', 'Otro')),
+	cod_integrante_escuela1 INT NOT NULL,
+	cod_integrante_escuela2 INT NOT NULL,
+	
+	CONSTRAINT pk_parentesco PRIMARY KEY (cod_integrante_escuela1,cod_integrante_escuela2),
+	CONSTRAINT fk_cod_integrante_escuela1 FOREIGN KEY (cod_integrante_escuela1) REFERENCES MAVintegrante_escuela(codigo),
+	CONSTRAINT fk_cod_integrante_escuela2 FOREIGN KEY (cod_integrante_escuela2) REFERENCES MAVintegrante_escuela(codigo)
+);
+
+
+
+--INSERTAR DATOS
+
+-- TABLA SAMBA
+BEGIN;
+
+INSERT INTO MAVsamba (letra, nombre_cancion, year_carnaval, tipo)
+VALUES ('Cadê o boi?
+O mogangueiro, o mandingueiro de Oyá (bis)
+Meu Tuiuti não tem medo de careta
+Traz o boi da cara preta do estado do Pará
+
+Num mar de tempestade e ventania
+Foi trazendo especiarias que o barco naufragou
+Noz moscada, cravo, iguarias
+No caminho para as índias a história eternizou
+O marinheiro se perdeu na madrugada
+O mogangueiro correu para o igarapé
+A curuminha entoou uma toada
+Enquanto abria-se a flor do mururé
+E nesse encontro entre o rio e o oceano
+A grande ilha que cultiva o carimbó
+Dizem que bichos ainda falam com humanos
+Há muitos anos na Ilha de Marajó
+
+Eh! Batuqueiro no samba de roda curimbó
+Quero ver você cantar como canta o curió (bis)
+Okê caboclo onde vai a piracema?
+Rio acima segue o voo de uma juriti pepena
+
+Há mão que modela a vida no barro marajoara
+E o búfalo que pisa esse chão do parauara
+Chama o Mestre Damasceno pra entoar esta canção
+Das cantigas da vovó
+Do tempo da escravidão
+
+É lá! É lá! É lá!
+Canoeiro vive só “morená” (bis)
+É lá! É lá! É lá!
+Mas precisa de um xodó', 'Mogangueiro da Cara Preta', '2022', 'Samba Enredo');
+
+INSERT INTO MAVsamba (letra, nombre_cancion, year_carnaval, tipo)
+VALUES ('Meu chão, foi terra batida
+Quinhão fundamento
+Pedaço de África, Engenho de Dentro
+Raiz ancestral no destino de Ifá
+O sangue malê no meu corpo alufá
+O ponto é reza cantada
+Axé de macumba
+Quizombeiro da folia
+Onde a arte fecunda
+Mãe baiana ê mãe de semba
+Pemba e samboré
+Canto de arengueiro
+Pulsa a marcação, nasce uma bandeira
+Pai na certidão de Mangueira
+E das bandas do Estácio, Benedito e Ismael
+Verde e rosa de Arturzinho e Cartola menestrel
+Era dia de Oxóssi, batucada a noite inteira
+Salve Paulo, Heitor, Caetano
+Madureira!
+Dos nossos cordões ô saudade
+Enfeitava os barracões, fantasia a liberdade
+Carnaval em sinfonia nas encruzas do Brasil
+Cada casa, cada santo, cada bamba que surgiu
+Sou verso luzindo na alvorada
+Teu surdo infindo eterna morada
+Hei de voltar pro meu canto, raiz floresceu
+Adeus, escola de samba, adeus
+Venceu, a escola de samba venceu
+Nas contas do Opelé
+Em cada caminho de fé
+Me guia ô me guia
+Arranco é quilombo de Zé
+É terra regada de axé
+Onde a voz do samba é alforria
+Obá obá
+Do subúrbio e da favela
+Obá obá
+No terreiro de Espinguela
+(Me chamam de Zé Espinguela)', 'Chão do Meu Terreiro', '2022', 'Samba Enredo');
+
+INSERT INTO MAVsamba (letra, nombre_cancion, year_carnaval, tipo)
+VALUES ('Marcado pela própria natureza
+O Nordeste do meu Brasil
+Oh! solitário sertão
+De sofrimento e solidão
+A terra é seca
+Mal se pode cultivar
+Morrem as plantas e foge o ar
+A vida é triste nesse lugar
+
+Sertanejo é forte
+Supera miséria sem fim
+Sertanejo homem forte (bis)
+Dizia o Poeta assim
+
+Foi no século passado
+No interior da Bahia
+O Homem revoltado com a sorte
+do mundo em que vivia
+Ocultou-se no sertão
+espalhando a rebeldia
+Se revoltando contra a lei
+Que a sociedade oferecia
+
+Os Jagunços lutaram
+Até o final
+Defendendo Canudos (bis)
+Naquela guerra fatal', 'Os Sertoes', '2022', 'Samba Enredo');
+
+INSERT INTO MAVsamba (letra, nombre_cancion, year_carnaval, tipo)
+VALUES ('Vamos sublimar em poesia
+A razão do dia a dia
+Pra ganhar o pão
+Acordar de manhã cedo
+Caminhar pra estação
+Pra chegar lá em D. Pedro
+A tempo de bater cartão
+
+Não é mole não
+Com a inflação
+Almejar as regalias
+Do progresso da nação
+
+O suburbano quando chega atrasado
+O patrão mal-humorado
+Diz que mora logo ali
+Mas é porque não anda nesse trem lotado
+Com o peito amargurado, baldeando por aí
+
+Imagine quem vem lá de Japeri
+
+Olhando a menina de laços de fita
+Batucando na marmita
+Pra não ver o tempo passar
+
+Esquecendo da tristeza quando o trem avariar
+
+E na viagem tem jogo de ronda, de damas e reis
+Vendedores, cartomantes, repentistas
+Tiram onda de artistas
+No famoso trinta e três
+O trombadinha quase sempre se dá bem
+O paquera apanha quando mexe com alguém
+
+Não é tão mole
+Andar de pingente no trem', '33 - Destino Dom Pedro II', '2023', 'Samba Enredo');
+
+INSERT INTO MAVsamba (letra, nombre_cancion, year_carnaval, tipo)
+VALUES ('Faca que corta
+É facão
+Fumo de corda
+Enrolam
+Mulher de nome
+É Isabel
+Que samba com gringo
+Soldado sem farda e sem quartel
+
+Cabua lê lê
+Viva ê
+Viva
+Cabua lê lê
+Viva ê
+Viva
+Não duvide que ela
+Mas duvide que ela vá
+Au au au apitô', 'Fanfarra – Cabua-Le-Le', '2022', 'Samba Bloco');
+
+INSERT INTO MAVsamba (letra, nombre_cancion, year_carnaval, tipo)
+VALUES ('Saravá... Saravá...
+Preto velho... Mirongueiro
+Saravá...É a luz desse terreiro
+Adorê as almas, irmão café
+Odara ê... Tatuapé
+
+Incorporei...
+Velas acesas no sagrado cazuá
+Incorporei...
+Mesmo cansado vou abrir meu jakutá.... Saravá
+Venho de longe... Adorê ...Ê ê
+Velas no congá...  Adorê...Ê ê
+Arruda e guiné benze filho de axé
+Preto velho conta a saga do café
+“ah meu fio vamo proseá”
+O café é meu irmão fruto da mãe áfrica
+Gira mundo pelo mundo girou
+Vendido, trocado, pilado na dor
+Chorava a senzala um canto negro ecoou
+
+Tanacilê... Tanasanã
+Iná inê... Tanuotã
+
+Lerê... Lerê na labuta do cafezal
+Cresce o meu brasil menino
+Lerê...Lerê o progresso trilhou
+Reluziu o ouro negro “meu sinhô “
+
+Êita cheiro bom... O vento leva
+Essa mironga do amanhã o que será?
+Inspira arte... Poesia, emoldurando a cultura popular
+Aruanda... Aruanda
+Eu vou me embora... Vou nos braços de iemanjá
+Mas deixo a paz e a esperança
+Eu vou me embora... Vou nos braços de iemanjá
+Adeus “meu fio” oxalá mandou chamar', 'Preto Velho Conta a Saga do Café num canto de fé', '2022', 'Samba Enredo');
+
+INSERT INTO MAVsamba (letra, nombre_cancion, year_carnaval, tipo)
+VALUES ('Meu Deus, escute a Águia cantar
+Oh Pai, lhe peço: Olhai por nós!
+Somos filhos desta pátria
+Que não cuida do que é seu
+E não ouve a nossa voz
+
+Meu Deus, escute a Águia cantar
+Oh Pai, lhe peço: Olhai por nós!
+Somos filhos desta pátria
+Que não cuida do que é seu
+E não ouve a nossa voz
+
+Mãe, por que não te fizeste mais gentil?
+Mãe! Por eles batizada de Brasil
+Para onde foi o teu olhar
+Quando do mar se aproximou
+A caravela da ganância
+A ambição do invasor?
+O teu herdeiro então chorou
+Derramou seu sangue em vão
+E nos tornamos os escravos do próprio chão
+​
+Ontem presos na senzala, maldade e dor
+O negro suplicava: Ó, meu Senhor!
+Hoje amargo preconceito
+Liberdade é uma quimera
+Viver livre, quem me dera!
+
+Ontem presos na senzala, maldade e dor
+O negro suplicava: Ó, meu Senhor!
+Hoje amargo preconceito
+Liberdade é uma quimera
+Viver livre, quem me dera!
+
+Vejam só que ironia
+Da colônia à monarquia, por aqui nada mudou
+Imperava uma história mal contada
+Logo após republicada pelas mãos do ditador
+Em planos, um país descolorido
+Saqueado e dividido
+O poder de quem tem mais
+A farra das elites sociais
+E o povo na rua, revestido de coragem
+Lava a alma de esperança
+Pra acabar com a sacanagem', 'Brasil, Eu Quero Falar de Você! Que País É Esse?', '2022', 'Samba Enredo');
+
+INSERT INTO MAVsamba (letra, nombre_cancion, year_carnaval, tipo)
+VALUES ('Jamais desistir, o sonho não acabou!
+Meu pavilhão, um caso de amor
+Te amo além do infinito!
+É na Pompeia que o céu é mais bonito
+
+Sonhei um mundo lindo
+Nasci sorrindo, com coragem pra crescer
+Juntei pedaço e a cada passo fiz por merecer
+Na inocência de criança, sigo com perseverança
+Um salto de superação
+Quem luta sempre alcança
+Basta acreditar que um novo dia vai raiar
+
+Em busca do ouro
+Conquistas e glórias
+Ter fé, apostar em você
+Juntos faremos história
+A vida é lutar e vencer
+
+Celebrar momentos marcantes, prazeres da vida
+A doçura, um abraço
+Estar ao seu lado, brindar na folia
+Doce emoção a consagração
+Sabor da vitória!
+Águia guerreira, teu samba é imortal
+Assim como os bambas
+Faço do céu o nosso carnaval', 'Um Pedaço do Céu', '2023', 'Samba Enredo');
+
+INSERT INTO MAVsamba (letra, nombre_cancion, year_carnaval, tipo)
+VALUES ('Tambor!
+Ressoa de Angola, Guiné e Benim
+É reino de Congo, espada de Ogum
+Nobreza ancestral que repousa em mim
+Bravura dos senhores de Orun
+Maré me leva em lamentos e preces
+Aporta na areia calunga de dor
+Um cais no estreito da argola que prende
+O Valongo se fez preto na pele que sangra
+Escorre o pranto que sufoca nossa gente
+
+É mucama de iaiá, é escravo do feitor
+Valentia da senzala não sucumbe ao capitão
+Lá nos cafezais, a revolta se faz
+Pra findar o açoite que fere o irmão
+
+Quilombo de luta à luz da esperança
+Correntes se quebram, é negra insurreição
+Lugar de fala contra a tirania
+Vive em toda manifestação
+Vai ter jongo e capoeira, ê, camará!
+Noite de coroação, quilombola vai jogar
+No axé da mãe baiana, ideal de igualdade
+Manoel e Mariana, os heróis da liberdade
+
+Firma ponto, eu quero ver, vai ter batuquejê
+Chama o povo do samba, ê samborê!
+Jacarepaguá, eu respeito a sua história
+Resistência é a marca da nossa vitória', 'Heróis da liberdade no Vale do Café', '2023', 'Samba Enredo');
+
+INSERT INTO MAVsamba (letra, nombre_cancion, year_carnaval, tipo)
+VALUES ('Quando o carnaval chegar
+Quero te ver sambando
+Na avenida
+
+Quando carnaval chegar
+Quero te ver sambar
+
+Atrás do elefante
+Ao som da Bateria
+Destemida
+
+Do forte
+Como é forte meu desejo
+De te encontrar
+
+Saciar essa saudade
+Saudade imensa
+De te ver bailar
+
+De te ver bailar
+De te ver bailar
+La - la - la - la - la - la - la - la - la
+La - la - la - la - la - la - la - la - la
+', 'Te ver Bailar', '2022', 'Samba Reggae');
+
+INSERT INTO MAVsamba (letra, nombre_cancion, year_carnaval, tipo)
+VALUES ('O meu canto é por justiça
+Por dois lados na balança
+Eu me chamo Esperança
+Na premissa, Obakoso
+Defesa de quem sangrou
+Acalanto de quem sente
+Onde cada escravo vira réu
+É trovão que rasga o céu
+Seu Machado está presente
+
+No suor da plantação, fio a fio a proteção
+Dos sagrados andarilhos
+O saber de grão em grão, pra enfrentar o capitão
+Pra dar colo a cada filho
+Separada pela dor, nas amarras do feitor
+Aos olhos de Nazaré
+Minha fé ninguém calou, sou a filha de Xangô
+A essência de mulher
+
+Lere lere, Kabesilê, Ojuobá
+Lere lere, Kabesilê
+
+Ojuobá, me tornei
+Onde o verbo me invade
+Sou palavra que arde
+Sei que ainda há a tortura
+Mas escrevo pra vencer
+(Nós vamos vencer)
+Esta sina que perdura
+Oh, Deus! Dediquei a palavra
+A cada alma preta que partiu
+Na carta a liberdade é assinada
+Por todas as Marias do Brasil
+
+Ainda que seja o lugar do folião
+Carnaval também é voz pra calar a escravidão
+Tá Em Cima da Hora mas é tempo de evocar
+A Esperança onde o samba há de lutar', 'Esperança, Presente!', '2023', 'Samba Enredo');
+
+INSERT INTO MAVsamba (letra, nombre_cancion, year_carnaval, tipo)
+VALUES ('“Ah Hey”
+É a Saudade Que Me Trouxe Pelo Braço
+O Samba Um Cortejo Seguiu
+Pra Falar De Alceu Valença
+Artista Do Brasil
+O Cabra Arretado, Nordestino
+Que São Bento Viu Menino
+E O Agreste Fez Poeta
+Que Herda… Talento E Sentimento
+“na Bruma Leve Das Paixões Que Vem De Dentro”
+“morena Tropicana” Quero Tua Paz
+Eu “já Escuto Os Teus Sinais”
+
+Traz a Lua De Olinda Na Zabumba a Minha Fé
+Que Eu Misturo O Xaxado O Baião E O Afoxé
+
+A Alegria Na Desforra Ao Que Passei
+Falar Do Mestre “pelas Ruas Que Andei”
+“coração Bobo” Num Acorde “bom Demais”
+Vou “batendo Tambor” E Juntando Carnavais
+Anjo Que Sussurra Pra Lembrar
+Que a Arte É Resistência É Cultura Popular
+Tú Vens… Tú Vens
+“tú Que Tanto Já Voou”
+Tú Vens Tú Vens
+Pra Ver Que O Arranco É Todo Amor
+
+“ao Seu” Dom a Gratidão
+Brilha a Luz Da Inspiração
+A Poesia Do Sertão Encontra O Azul
+Pra Saudar O Rei Do Frevo E Do Maracatu', 'O Rei do Frevo e do Maracatu', '2023', 'Samba Enredo');
+
+INSERT INTO MAVsamba (letra, nombre_cancion, year_carnaval, tipo)
+VALUES ('Bateu forte opaxorô e a Terra tremeu
+O mundo se modificou
+Clemência e paz aos filhos teus
+Clamavam sete yaôs
+Levando canto de axé, axé
+Cabeça feita na fé
+Meu pai nos dê proteção
+Na escuridão a tua luz, a luz
+O horizonte veste branco
+Para amenizar a dor
+Lavar o engano que sofreu o criador, o criador!
+
+Na gira do ilê
+No toque do alabê
+Oxalufã Babá
+Oxaguiã é luta e guerra
+Ar que espalha o fogo
+Chuva que molha a terra
+
+Awurê, Awurê, Awurê
+Ao dono do saber
+Derrame o seu amor glorioso protetor
+Awurê, Awurê, menino
+O respeito há de ter
+Quem semeia intolerância perde a paz no coração
+Senhor em tua honra tudo se faz lento
+Os atabaques rompem o silêncio
+No sopro da vida o meu despertar
+Luz que atravessa o Orum
+A força no clamor dos orixás
+Na gratidão de cada filho teu
+Pompeia pede paz!
+
+Epa Babá
+Xeu Epa Babá
+Vai ter xirê até o dia clarear
+Nesse afoxé, Águia de Ouro lava a alma
+Nas Águas de Oxalá', 'Um Canto de Luz em Tempo de Trevas', '2023', 'Samba Enredo');
+
+INSERT INTO MAVsamba (letra, nombre_cancion, year_carnaval, tipo)
+VALUES ('Alô, meu Tuiuti!
+Quem for contra, vai chorar
+Porque, se Deus é por nós
+Quem será contra nós?
+Abriu a porta da senzala!
+É pegada de africano, hein?
+
+Ogunhiê! Okê arô!
+Laroyê! Meu pai, kaô
+Tem sangue nobre de Mandela e de Zumbi
+Nas veias do povo preto do meu Tuiuti
+
+Ogunhiê! Okê arô!
+Laroyê! Meu pai, kaô
+Tem sangue nobre de Mandela e de Zumbi
+Nas veias do povo preto do meu Tuiuti
+
+Olodumarê mandou
+Oxalá me conduzir
+Pelo céu da liberdade
+Me falou Orunmilá
+Vai, meu filho, semear, pelo mundo, a humanidade
+Nos caminhos de Exu
+Me perdendo, eu encontrei, nua e crua, essa verdade
+Que a raiz do preconceito
+Nasce do olhar estreito da cruel desigualdade
+Sou alabê gungunando o tambor
+Trago cantos de dor, de guerra e de paz
+Pra ver secar todo pranto nagô
+E gritar por direitos iguais
+Meu sangue negro que escorre no jornal
+Inundou um oceano até a Pedra do Sal
+
+É! Dandara!
+A espada e a palavra, é!
+Não vai ser escrava, é!
+De ver noutras negras minas
+Um baobá malê que nasceu do chão
+Pra vencer a opressão
+Com a força da melanina
+Pra saudar o meu Orixá', 'Que nossos caminhos se abram', '2023', 'Samba Enredo');
+
+INSERT INTO MAVsamba (letra, nombre_cancion, year_carnaval, tipo)
+VALUES ('Livre no ventre de África, está
+A realeza que a fez mulher
+Brava herdeira, rainha
+A ancestral Yabá
+Tua coragem te mantém de pé
+Mãe do retinto ibeji, tua missão te fará
+Agô, cruzar o mar
+
+Iêiê, negra maré
+No cativeiro, a resistência
+Quilombo, ê, a liberdade raiou
+
+Iêiê, negra maré
+No cativeiro, a resistência
+Quilombo, ê, a liberdade raiou
+Resiliência pra quem ama sua cor
+
+Preta, o mundo te espera
+Quem dera a guerra fosse carnaval
+Mas Preta, valeu teu direito
+Respeito à igualdade racial
+É, pega a mão do teu filho, mulher
+Fé que chegou a hora
+Se vida negras importam para nós
+
+Ninguém vai calar nossa voz
+Ninguém vai calar nossa voz
+
+Tira essa mordaça do seu coração
+União é raça, é consagração
+
+Tira essa mordaça do seu coração
+União é raça, é consagração
+Meu povo preto é rei
+E a felicidade, minha lei', 'De ventres africanos, os sonhos por liberdade!', '2023', 'Samba Enredo');
+
+INSERT INTO MAVsamba (letra, nombre_cancion, year_carnaval, tipo)
+VALUES ('Em Cima da Hora o povo te abraça
+Orlando Baptista um samba de amor
+Mestre dos mestres, o nosso locutor!
+Que a rádio eternizou
+
+Sopra o vento
+Pelos oceanos navegar tanto mar!
+Caminho para as índias encontrar
+Almirante dos mares, tantas terras, lugares
+Cruz de malta a tremular
+Sonhava o menino, cumprir seu destino
+Ser Vasco da Gama, tua sina é lutar
+Nesse mundo aventurar
+
+Sonha, menino, sonha
+Em ser um conquistador
+De tanto sonhar, menino
+Teu sonho realizou
+
+Lá no alto da pedreira, cão!
+Mora a justiça verdadeira, de seu pai xangô
+Um raio clareia pra iluminar teu caminhar
+Foi retratando as emoções de cada um de nós
+Com sua voz presente em tantos mundiais
+Apaixonado pelos gramados
+Urubu rei, seus eternos rivais
+Voa com a águia altaneira
+Canta Cavalcante com emoção
+Vem da arquibancada o grito de campeão!', 'O Menino e a Bola', '2023', 'Samba Enredo');
+
+COMMIT;
+
+--TABLA INTEGRANTE_ESCUELA
+
+BEGIN;
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento)
+VALUES ('Juan', 'Carlos', 'Pereira', 'Dos santos', 145698632, 'Juancito', '1990-05-10');
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, fecha_nacimiento)
+VALUES ('María', 'Elena', 'Batista', 'Gomes', 254785552, '1992-03-15');
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Pedro', NULL, 'Carvalho', 'Moraes', 148754100, 'Pedrinho', '1995-09-20', null);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Anita', 'Luisa', 'Alves', 'Almada', 178596453, null, '1998-07-12', null);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Luis', 'Alberto', 'Fernández', 'Pérez', 32165498, 'Lucho', '1993-12-30', 'Argentina');
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Keila', 'Betania', 'Valente', 'Raposo', null, 'Bebe', '2009-06-25', null);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('André', 'Filipe', 'Ferreira', 'Rodrigues', 114588010, null, '1991-11-05', null);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Luna', 'María', 'Fernández', 'Pérez', 35178965, null, '1995-11-18', 'Argentina');
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Roberto', 'Rafael', 'Quaresma', 'Souza', 170415342, 'Robertinho', '1997-04-22', null);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Laura', 'Rosario', 'de Jesus', 'Silva', 252364189, 'de pés leves', '1999-01-08', null);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Beatriz','Marcela','Nunes','De sousa',7168742,'bia','1992-05-17',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Marcela','Alessandra','Ramos','Dias',82461988,'marce','1998-09-02',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Gilberto','Henrique','Da costa','Araujo',74458921,'ricky','1995-11-11',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Manuel', 'Octavio','Garcia','Perez',NULL,'manu', '2016-03-29',null);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Eliana','Victoria','Duarte','Freitas',84267157,'eli','1999-07-25',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Renato','Vicente','Farias','Silveira',87349147,NULL,'1997-12-09',null);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Belmira','Lorena','Neves','De Lourdes',70984651,'bela','1994-10-17',null);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Ana','Larissa', 'Alvez Da Silva','Araujo',88945713,'anita','2003-03-11',null);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Leonardo','Felipe', 'Barbosa','Ramos',742152247,'Leo','1997-10-19',null);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Gabriela','Aline', 'Andrade','Leite',722354792,'Gaby','1999-03-16',null);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Luana','Sofia', 'Correia De Freitas','Goncalves',846571925,'Lu','2008-08-22',null);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Gissele','Luciana', 'Viana','Garcia',699715484,'Gigi','2003-12-21',null);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Salvador','Vicente', 'Andrade','Duarte',711348157,'Salva','2007-04-05',null);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Marco','Lucas', 'Santana De Araujo','Florenca',817456931,'Malu','1993-07-27','Argentina');
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Patricia','Helena', 'Marques','Nunes',799458219,'Paty','1997-09-15',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Julia','Amanda', 'Da silva','Pereira',85214644,'Juleka','2000-06-30',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Diana','Isabela', 'Lima','Batista',85214644,'Dede','2001-07-11',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Eliana','Rafaela', 'Bezzera','Martins',77841354,NULL,'1998-05-13',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Nathalia','Marcela', 'Correa','Cardoso',79163482,'Marci','1995-03-16',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Flavia','Gabriela', 'Rocha','Santana',85549271,NULL,'2001-08-20',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Luan','Thomas', 'Leite','Tavares',75482336,NULL,'1997-12-25',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Octavio','Rafael', 'Pinheiro','Guimaraes',73384912,'Rafa','1999-10-24',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Cristiano','Antonio', 'Silva','Araoujo',81145621,'Cris','2003-06-12',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Oscar','Leandro', 'De Lima','Moreira',71834627,'Brocoli','2003-11-29',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Julio','Orlando', 'Santos','Oliveiras',74562185,'Santos','2001-04-07',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Estevão','Alfonso', 'Santos','Dos Santos',81119655,NULL,'2004-03-03',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Benicio','Manuel', 'Araujo','Cardoso',73335698,'Ben','1998-05-06','Colombia');
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Victoria','Emilia', 'Lourdes','Bispo',77885664,'Vicky','1998-08-08','Uruguay');
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Sandra','Rosa', 'Garcia','Miranda',89633699,'Rosi','1998-08-08','Venezuela');
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Leticia','Raquel', 'Borgues','Machado',84566595,'Leti','2005-10-30',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Adriana','Aurea', 'Pinto','Goncalves',89996547,'Adri','2006-01-17',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Diana','Anabella', 'Brito','Neves',74455698,'Dina','1997-09-18',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Ana','Paula', 'Da Silva','Pinto',78655863,'Paan','1994-01-05',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Juliana','Fernanda', 'Freitas','Bispo',74465465,'Jule','1993-12-15',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Simone','Luiz', 'Neves','Coelho',77664564,NULL,'1997-07-18',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Francisca','Joanna', 'De Paula','Pereira',85225863,'Fran','2001-11-17',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Josefa','Luana', 'De Araujo','Santana',75321598,'Luna','1998-10-28',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Lucia','Aparecida', 'Rosa','Carvalho',74123658,'Luci','1996-10-10',NULL);
+
+INSERT INTO MAVintegrante_escuela (primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, documento_identidad, apodo, fecha_nacimiento, nacionalidad)
+VALUES ('Vannesa','Sofia', 'Da Conceiçao','Costa',85213467,'Vanne','2000-08-11',NULL);
+
+COMMIT;
+
+
+--INSERTS C_E
+
+BEGIN;
+
+INSERT INTO MAVC_E
+VALUES(9,1);
+
+INSERT INTO MAVC_E
+VALUES(3,2);
+
+INSERT INTO MAVC_E
+VALUES(4,3);
+
+INSERT INTO MAVC_E
+VALUES(4,2);
+
+INSERT INTO MAVC_E
+VALUES(8,3);
+
+INSERT INTO MAVC_E
+VALUES(3,4);
+
+INSERT INTO MAVC_E
+VALUES(9,2);
+
+INSERT INTO MAVC_E
+VALUES(9,3);
+
+INSERT INTO MAVC_E
+VALUES(5,2);
+
+INSERT INTO MAVC_E
+VALUES(5,1);
+
+INSERT INTO MAVC_E
+VALUES(4,7);
+
+INSERT INTO MAVC_E
+VALUES(4,4);
+
+INSERT INTO MAVC_E
+VALUES(4,5);
+
+INSERT INTO MAVC_E
+VALUES(2,3);
+
+INSERT INTO MAVC_E
+VALUES(2,2);
+
+INSERT INTO MAVC_E
+VALUES(2,5);
+
+INSERT INTO MAVC_E
+VALUES(1,1);
+
+INSERT INTO MAVC_E
+VALUES(1,5);
+
+INSERT INTO MAVC_E
+VALUES(7,1);
+
+INSERT INTO MAVC_E
+VALUES(7,6);
+
+COMMIT;
+
+--TABLA PATROCINADOR_JURIDICO
+
+BEGIN;
+
+INSERT INTO MAVpatrocinador_juridico (nombre_empresa, contacto_email)
+VALUES ('Veja', 'contato@abril.com.br');
+
+INSERT INTO MAVpatrocinador_juridico (nombre_empresa, contacto_email, mision)
+VALUES ('UOL Compass', 'contato@uol.com.br', 'Nuestra misión es ayudar a nuestros clientes a mejorar su éxito empresarial y convertirse en líderes en sus segmentos de mercado.');
+
+INSERT INTO MAVpatrocinador_juridico (nombre_empresa, contacto_email)
+VALUES ('Troller Veiculo Especiais', 'contato@troller.com.br');
+
+INSERT INTO MAVpatrocinador_juridico (nombre_empresa, contacto_email, mision)
+VALUES ('Banco Patagonia', 'contacto@bancopatagonia.com.ar', 'nuestra misión es ser un banco universal, cercano a sus clientes, con presencia nacional y vocación de crecimiento, en constante búsqueda de creación de valor para sus accionistas, colaboradores y la sociedad en su conjunto.');
+
+INSERT INTO MAVpatrocinador_juridico (nombre_empresa, contacto_email, mision)
+VALUES ('Alupar', 'rafael.kimati@original123.com.br', 'Transmitir y generar energía con responsabilidad corporativa, social y ambiental, generando valor para los accionistas, desarrollo económico y bienestar de las personas.');
+
+INSERT INTO MAVpatrocinador_juridico (nombre_empresa, contacto_email)
+VALUES ('JHSF Participacoes', 'info@bnamericas.com');
+
+INSERT INTO MAVpatrocinador_juridico (nombre_empresa, contacto_email, mision)
+VALUES ('Novonor', 'contacto@novonor.com.br', ' Servir a la sociedad por la actuación de nuestras empresas, ayudando a construir un futuro sostenible.');
+
+INSERT INTO MAVpatrocinador_juridico (nombre_empresa, contacto_email)
+VALUES ('Gol Linhas Aéreas', 'crc.cargas@voegol.com.br');
+
+INSERT INTO MAVpatrocinador_juridico (nombre_empresa, contacto_email, mision)
+VALUES ('LATAM Airlines', 'contactlatam@latam.com.br', 'Conectar a las personas de forma segura, con excelencia operativa y alegría en un esfuerzo por convertirse en la primera opción de los pasajeros');
+
+COMMIT;
+
+-- TABLA PATROCINADOR NATURAL
+
+BEGIN;
+
+INSERT INTO MAVpatrocinador_natural (documento_identidad, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, fecha_nacimiento, contacto_email)
+VALUES (20471526, 'Daniel', 'Alejandro', 'Pérez', 'Acosta', '1990-05-10', 'contacto@danielperez.com');
+
+INSERT INTO MAVpatrocinador_natural (documento_identidad, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, fecha_nacimiento, contacto_email)
+VALUES (98765430, 'María', 'Elena', 'Oliveira', 'Santos', '1974-03-15', 'mariaelenaolveira@gmail.com');
+
+INSERT INTO MAVpatrocinador_natural (documento_identidad, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, fecha_nacimiento, contacto_email)
+VALUES (45678910, 'Pedro', NULL, 'Rodríguez', 'Sánchez', '1995-09-20', 'pedro@example.com');
+
+INSERT INTO MAVpatrocinador_natural (documento_identidad, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, fecha_nacimiento, contacto_email)
+VALUES (78912340, 'Ana', 'Luisa', 'Martínez', 'Gómez', '1998-07-12', 'ana@example.com');
+
+INSERT INTO MAVpatrocinador_natural (documento_identidad, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, fecha_nacimiento, contacto_email)
+VALUES (32165490, 'Luis', 'Alberto', 'Fernández', 'Pérez', '1993-12-30', 'luis@example.com');
+
+INSERT INTO MAVpatrocinador_natural (documento_identidad, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, fecha_nacimiento, contacto_email)
+VALUES (65498710, 'Carolina', NULL, 'Gutiérrez', 'Silva', '1996-06-25', 'carolina@example.com');
+
+INSERT INTO MAVpatrocinador_natural (documento_identidad, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, fecha_nacimiento, contacto_email)
+VALUES (98732540, 'Andrés', 'Felipe', 'López', 'Vargas', '1991-11-05', 'andres@example.com');
+
+INSERT INTO MAVpatrocinador_natural (documento_identidad, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, fecha_nacimiento, contacto_email)
+VALUES (32178540, 'Julia', 'María', 'Gómez', 'Fernández', '1994-08-18', 'julia@example.com');
+
+INSERT INTO MAVpatrocinador_natural (documento_identidad, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, fecha_nacimiento, contacto_email)
+VALUES (98765210, 'Carlos', 'Andrés', 'Rodríguez', 'Soto', '1997-04-22', 'carlos@example.com');
+
+COMMIT;
+-- TABLA LUGAR
+
+BEGIN;
+--ESTADOS
+INSERT INTO MAVlugar (nombre, tipo, region, cod_lugar_padre)
+VALUES ('Rio de Janeiro', 'Estado', 'Sureste', NULL);
+
+INSERT INTO MAVlugar (nombre, tipo, region,cod_lugar_padre)
+VALUES ('Sao Paulo', 'Estado', 'Sureste',NULL);
+
+INSERT INTO MAVlugar (nombre, tipo, region,cod_lugar_padre)
+VALUES ('Bahia', 'Estado', 'Nordeste',NULL);
+
+INSERT INTO MAVlugar (nombre, tipo, region,cod_lugar_padre)
+VALUES ('Pernambuco', 'Estado', 'Nordeste',NULL);
+
+INSERT INTO MAVlugar (nombre, tipo, region,cod_lugar_padre)
+VALUES ('Maranhao', 'Estado', 'Nordeste',NULL);
+
+--CIUDADES RIO
+INSERT INTO MAVlugar (nombre, tipo, region,cod_lugar_padre)
+VALUES ('Rio de Janeiro', 'Ciudad', 'Sureste',1);
+
+INSERT INTO MAVlugar (nombre, tipo, region,cod_lugar_padre)
+VALUES ('Niteroi', 'Ciudad', 'Sureste',1);
+
+INSERT INTO MAVlugar (nombre, tipo, region,cod_lugar_padre)
+VALUES ('Sao Goncalo', 'Ciudad', 'Sureste',1);
+
+	--Ciudades Sao Paulo
+INSERT INTO MAVlugar (nombre, tipo, region, cod_lugar_padre)
+VALUES ('Sao Paulo', 'Ciudad', 'Sureste',2);
+
+INSERT INTO MAVlugar (nombre, tipo, region, cod_lugar_padre)
+VALUES ('Santos', 'Ciudad', 'Sureste',2);
+
+INSERT INTO MAVlugar (nombre, tipo, region, cod_lugar_padre)
+VALUES ('Campinas', 'Ciudad', 'Sureste',2);
+
+INSERT INTO MAVlugar (nombre, tipo, region, cod_lugar_padre)
+VALUES ('Guaruja', 'Ciudad', 'Sureste',2);
+
+INSERT INTO MAVlugar (nombre, tipo, region, cod_lugar_padre)
+VALUES ('Bauru', 'Ciudad', 'Sureste',2);
+
+	--Ciudades Pernambuco
+INSERT INTO MAVlugar (nombre, tipo, region,cod_lugar_padre)
+VALUES ('Recife', 'Ciudad', 'Nordeste',4);
+
+INSERT INTO MAVlugar (nombre, tipo, region,cod_lugar_padre)
+VALUES ('Olinda', 'Ciudad', 'Nordeste',4);
+
+INSERT INTO MAVlugar (nombre, tipo, region,cod_lugar_padre)
+VALUES ('Caruaru', 'Ciudad', 'Nordeste',4);
+
+INSERT INTO MAVlugar (nombre, tipo, region,cod_lugar_padre)
+VALUES ('Petrolina', 'Ciudad', 'Nordeste',4);
+
+	--Ciudades Bahia
+INSERT INTO MAVlugar (nombre, tipo, region,cod_lugar_padre)
+VALUES ('Salvador', 'Ciudad', 'Nordeste',3);
+
+INSERT INTO MAVlugar (nombre, tipo, region,cod_lugar_padre)
+VALUES ('Porto Seguro', 'Ciudad', 'Nordeste',3);
+
+INSERT INTO MAVlugar (nombre, tipo, region,cod_lugar_padre)
+VALUES ('Ilheus', 'Ciudad', 'Nordeste',3);
+
+INSERT INTO MAVlugar (nombre, tipo, region,cod_lugar_padre)
+VALUES ('Itaparica', 'Ciudad', 'Nordeste',3);
+
+	--Ciudades Maranhao
+INSERT INTO MAVlugar (nombre, tipo, region,cod_lugar_padre)
+VALUES ('Sao Luis', 'Ciudad', 'Nordeste',5);
+
+INSERT INTO MAVlugar (nombre, tipo, region,cod_lugar_padre)
+VALUES ('Imperatriz', 'Ciudad', 'Nordeste',5);
+
+INSERT INTO MAVlugar (nombre, tipo, region,cod_lugar_padre)
+VALUES ('Barreirinhas', 'Ciudad', 'Nordeste',5);
+
+INSERT INTO MAVlugar (nombre, tipo, region,cod_lugar_padre)
+VALUES ('Pinheiro', 'Ciudad', 'Nordeste',5);
+
+COMMIT;
+
+--TABLA ESCUELA_ SAMBA
+
+BEGIN;
+
+INSERT INTO MAVescuela_samba (historia, sede, fecha_fundacion, nombre_escuela, cod_lugar)
+VALUES ('Alrededor de 1970, abrieron una galería de arte. Algunos amigos, vinieron a exponer sus obras con nosotros. Con el paso del tiempo, los fines de semana utilizábamos la Galería para nuestras fiestas, y así nació la idea de nuestras pagodas de fin de semana. Hélio Lobo consiguió algunos instrumentos musicales y así la pagoda empezó a atraer a un público cada vez mayor. Conseguimos aumentar el número de instrumentos musicales y a partir de entonces empezamos el "SAMBÃO", bautizado por Mário Moreno como "SAMBÃO PRETO VELHO" (el nombre de la galería de arte). Todo esto empezó en Nochebuena de 1974.', '681 Rua Bispo Coutinho', '1974-12-24', 'GRES Preto Velho',15);
+
+INSERT INTO MAVescuela_samba (historia, sede, fecha_fundacion, nombre_escuela,cod_lugar)
+VALUES ('Limonil es la Escuela de Samba más antigua en actividad de Recife. Nació de una reunión de amigos que bebían en la esquina donde está su sede hasta hoy. El nombre de la Escuela hace referencia a la mezcla de añil, pituitaria y limón, elementos presentes en el momento de su fundación, que influyeron en la elección de los colores de la Agremiação (verde y blanco).', 'R. Campo Largo, 102', '1935-05-28', 'GRES Limonil', 
+	   (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Recife'AND tipo = 'Ciudad'));
+
+INSERT INTO MAVescuela_samba (historia, sede, fecha_fundacion, nombre_escuela, cod_lugar)
+VALUES ('Es una de las mayores escuelas de samba de la ciudad, habiendo sido siete veces campeona consecutivas. Hasta los años 80, era considerada una escuela pequeña, pero creció, se estableció en el Grupo Especial y se convirtió definitivamente en una de las grandes escuelas de Recife tras recibir disidencias del Gigante, con el que actualmente mantiene una fuerte rivalidad.', 'R. Alto Alegre, 57-119', '1962-11-15', 'Galeria do Ritmo',
+		(SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Recife'AND tipo = 'Ciudad'));
+
+INSERT INTO MAVescuela_samba (historia, sede, fecha_fundacion, nombre_escuela,cod_lugar)
+VALUES ('Todo comenzó a partir del legendario equipo Faísca de Ouro Futebol Clube. Los fines de semana de Vila Anglo, en Pompeia, eran siempre de fiesta y mucha batucada, después de cada victoria la conmemoración ocurría en forma de samba y alegría. Con el pasar de los años, parecía que sólo un equipo de fútbol sería poco para representar a toda una comunidad. Los miembros de Faísca de Ouro, que hasta entonces celebraban el Carnaval en el interior de São Paulo, empezaron a organizarse para crear una Escuela de Samba en São Paulo. Así nació el G.R.E.S. Águia de Ouro.', 'Av. Pres. Castelo Branco, 7683', '1976-05-09', 'GRES Aguia de Ouro',		
+(SELECT codigo FROM MAVlugar 
+ WHERE nombre = 'Sao Paulo' AND tipo = 'Ciudad'));
+
+INSERT INTO MAVescuela_samba (historia, sede, fecha_fundacion, nombre_escuela, cod_lugar)
+VALUES ('Es uno de los desfiles de Carnaval más antiguos de Recife. El primer nombre dado a la Escuela fue Garotos do Céu. Sólo en 1974, 32 años después, pasó a llamarse oficialmente Grêmio Recreativo Escola Gigante do Samba. ', 'R. das Crianças, 63', '1942-03-16', 'GRES Gigante do Samba',
+	   (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Recife'AND tipo = 'Ciudad'));
+
+INSERT INTO MAVescuela_samba (historia, sede, fecha_fundacion, nombre_escuela, cod_lugar)
+VALUES ('En los años 50, había un Bloco de Sujos en el suburbio de Engenho de Dentro que atraía a mucha gente. Era un Bloco de Sujos, que desfilaba por los suburbios. Por donde pasaba el Bloco, "arrastraba" a la gente de sus casas y era una gran fiesta cuando pasaba este Bloco. Por eso se decidió que el nombre de la nueva organización sería Sociedade Recreativa e Carnavalesca ARRANCO.', 'Rua Adolfo Bergamini, 196', '1973-03-21', 'GRES Arranco',
+	   (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Rio de Janeiro' AND tipo = 'Ciudad'));
+
+INSERT INTO MAVescuela_samba (historia, sede, fecha_fundacion, nombre_escuela, cod_lugar)
+VALUES ('Tras la extinción de Unidos do Tuiuti. En aquella época, Paraíso da Baianas también se enfrentaba a un declive. Los habitantes de las favelas, que no podían permitirse ir a las celebraciones de carnaval de las escuelas de samba, preferían participar en bloques de carnaval, como el Bloco dos Brotinhos, también de Tuiuti. Fue entonces cuando un grupo de bailarines de samba se reunió y decidieron acabar con el bloque y también con Paraíso das Baianas y crear una nueva escuela de samba.', 'Campo de São Cristóvão, 33', '1952-04-05', 'GRES Paraiso do Tuiuti',
+	   (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Rio de Janeiro' AND tipo = 'Ciudad'));
+
+INSERT INTO MAVescuela_samba (historia, sede, fecha_fundacion, nombre_escuela,cod_lugar)
+VALUES ('En una reunión entre sambistas del barrio de Cavalcante que pretendían fundar una nueva escuela de samba, la historiografía del Carnaval de Río cuenta que después de muchas discusiones, pero sin llegar a ninguna conclusión sobre el nombre, uno de los presentes miró de repente su reloj y comprobó que ya eran las tres de la mañana, entonces exclamó: "Estou em cima da hora de chegar em casa" Encontrando divertida la situación, los demás presentes acordaron que el nombre de la escuela de samba fuera "Em Cima da Hora", en clara referencia a la antigua escuela de samba de Catumbi.', 'R. Zeferino da Costa, 556', '1959-11-15', 'GRES Em Cima da Hora',
+	   (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Rio de Janeiro' AND tipo = 'Ciudad'));
+
+INSERT INTO MAVescuela_samba (historia, sede, fecha_fundacion, nombre_escuela,cod_lugar)
+VALUES ('Nació de la fusión de otras dos famosas escuelas de samba que existían en la zona de Jacarepaguá: Corações Unidos de Jacarepaguá, en aquel momento representada por Aloysio Domingos da Cruz, y Vai se quiser. Los grandes promotores de esta fusión fueron Joaquim Casemiro da Silva (el famoso Calça Larga, de Salgueiro), Hermes Rodrigues, Ministrinho, Lourival Cassado, todos de Mangueira, y Expedito Silva, de Portela. La União de Jacarepaguá fue la primera escuela de samba que recibió la visita de un jefe de Estado.', 'Estrada Intendente Magalhães', '1956-11-15', 'GRES Uniao de Jacarepagua',
+	   (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Rio de Janeiro' AND tipo = 'Ciudad'));
+
+COMMIT;
+
+
+-- INSERTS COLOR
+BEGIN;
+
+INSERT INTO MAVcolor (nombre_color)
+VALUES('Verde');
+INSERT INTO MAVcolor (nombre_color)
+VALUES('Blanco');
+INSERT INTO MAVcolor (nombre_color)
+VALUES('Azul');
+INSERT INTO MAVcolor (nombre_color)
+VALUES('Amarillo');
+INSERT INTO MAVcolor (nombre_color)
+VALUES('Dorado');
+INSERT INTO MAVcolor (nombre_color)
+VALUES('Rojo');
+INSERT INTO MAVcolor (nombre_color)
+VALUES('Plateado');
+
+COMMIT;
+
+
+-- INSERTS PREMIO_ESPECIAL (tipo: escuela o individual)
+
+--RIO y Sao Paulo
+
+BEGIN;
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Estandarte de Ouro','Escuela','La escuela de samba con mejor Samba-enredo tocada en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Rio de Janeiro' AND tipo = 'Ciudad'));
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Estandarte de Ouro','Escuela','La escuela de samba con mejor Samba-enredo tocada en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Sao Paulo' AND tipo = 'Ciudad'));
+
+
+----REVISAR MAS PREMIOS ESPECIALES
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Bateria','Escuela','La escuela de samba con mejor percusion tocado en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Rio de Janeiro' AND tipo = 'Ciudad'));
+
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Bateria','Escuela','La escuela de samba con mejor percusion tocado en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Sao Paulo' AND tipo = 'Ciudad'));
+
+--puede haber mas de 1 
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Ala o Sector','Escuela','Reconocimiento especifico a la seccion de la escuela que se destaco por su creatividad.',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Rio de Janeiro' AND tipo = 'Ciudad'));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Ala o Sector','Escuela','Reconocimiento especifico a la seccion de la escuela que se destaco por su creatividad.',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Sao Paulo' AND tipo = 'Ciudad'));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Fantasia','Escuela','Reconocimiento especifico a la creatividad de los diseños de vestuario',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Rio de Janeiro' AND tipo = 'Ciudad'));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Fantasia','Escuela','Reconocimiento especifico a la creatividad de los diseños de vestuario',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Sao Paulo' AND tipo = 'Ciudad'));
+
+-- salvador 
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Campeon Carnaval','Escuela','La escuela de samba que obtiene la mayor puntuacion en la competencia general',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Salvador' AND tipo = 'Ciudad'));
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Puesta en Escena','Escuela','Se premia a la escuela de smaba con la mejor presentacion en el desfile',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Salvador' AND tipo = 'Ciudad'));
+
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Samba-Enredo','Escuela','La escuela de samba con mejor Samba-enredo tocada en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Salvador' AND tipo = 'Ciudad'));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Bateria','Escuela','La escuela de samba con mejor percusion tocado en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Salvador' AND tipo = 'Ciudad'));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Fantasia','Escuela','Reconocimiento especifico a la creatividad de los diseños de vestuario',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Salvador' AND tipo = 'Ciudad'));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Coreografia','Escuela','Se otorga a la escuela de samba que presente la mejor coordinacion y ejecucion.',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Salvador' AND tipo = 'Ciudad'));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Samba-Enredo','Escuela','La escuela de samba con mejor Samba-enredo tocada en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Rio de Janeiro') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Bateria','Escuela','La escuela de samba con mejor percusion tocado en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Rio de Janeiro') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Comissão de Frente','Escuela','Reconoce al grupo de bailarines y coreógrafos que abre el desfile, valorando su creatividad.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Rio de Janeiro') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Fantasia','Escuela','Reconocimiento especifico a la creatividad de los diseños de vestuario',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE (nombre = 'Rio de Janeiro') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Ala de Baianas','Escuela','Son las mujeres mayores que desfilan con trajes tradicionales y representan la sabiduría.',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Rio de Janeiro' AND tipo = 'Ciudad'));
+
+	--Premios Ciudad Niteroi
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Samba-Enredo','Escuela','La escuela de samba con mejor Samba-enredo tocada en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Niteroi') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Bateria','Escuela','La escuela de samba con mejor percusion tocado en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Niteroi') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Comissão de Frente','Escuela','Reconoce al grupo de bailarines y coreógrafos que abre el desfile.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Niteroi') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Fantasia','Escuela','Reconocimiento especifico a la creatividad de los diseños de vestuario',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE (nombre = 'Niteroi') AND (tipo = 'Ciudad')));
+
+	--Premios Ciudad Sao Goncalo
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Samba-Enredo','Escuela','La escuela de samba con mejor Samba-enredo tocada en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Sao Goncalo') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Bateria','Escuela','La escuela de samba con mejor percusion tocado en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Sao Goncalo') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Comissão de Frente','Escuela','Reconoce al grupo de bailarines y coreógrafos que abre el desfile.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Sao Goncalo') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Fantasia','Escuela','Reconocimiento especifico a la creatividad de los diseños de vestuario',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE (nombre = 'Sao Goncalo') AND (tipo = 'Ciudad')));
+
+	
+	--Premios Ciudad Sao Paulo
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Samba-Enredo','Escuela','La escuela de samba con mejor Samba-enredo tocada en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Sao Paulo' AND tipo = 'Ciudad'));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Bateria','Escuela','La escuela de samba con mejor percusion tocado en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Sao Paulo' AND tipo = 'Ciudad'));
+
+BEGIN;
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Comissão de Frente','Escuela','Reconoce al grupo de bailarines y coreógrafos que abre el desfile.',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Sao Paulo' AND tipo = 'Ciudad'));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Fantasia','Escuela','Reconocimiento especifico a la creatividad de los diseños de vestuario',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Sao Paulo' AND tipo = 'Ciudad'));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Ala de Baianas','Escuela','Son las mujeres mayores que desfilan con trajes tradicionales y representan la sabiduría.',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Sao Paulo' AND tipo = 'Ciudad'));
+
+	--Premios Ciudad Santos
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Samba-Enredo','Escuela','La escuela de samba con mejor Samba-enredo tocada en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Santos') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Bateria','Escuela','La escuela de samba con mejor percusion tocado en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Santos') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Comissão de Frente','Escuela','Reconoce al grupo de bailarines y coreógrafos que abre el desfile.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Santos') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Fantasia','Escuela','Reconocimiento especifico a la creatividad de los diseños de vestuario',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE (nombre = 'Santos') AND (tipo = 'Ciudad')));
+
+	--Premios Ciudad Campinas
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Samba-Enredo','Escuela','La escuela de samba con mejor Samba-enredo tocada en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Campinas') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Bateria','Escuela','La escuela de samba con mejor percusion tocado en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Campinas') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Comissão de Frente','Escuela','Reconoce al grupo de bailarines y coreógrafos que abre el desfile.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Campinas') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Fantasia','Escuela','Reconocimiento especifico a la creatividad de los diseños de vestuario',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE (nombre = 'Campinas') AND (tipo = 'Ciudad')));
+
+	--Premios Ciudad Guarujas
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Samba-Enredo','Escuela','La escuela de samba con mejor Samba-enredo tocada en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Guaruja') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Bateria','Escuela','La escuela de samba con mejor percusion tocado en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Guaruja') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Comissão de Frente','Escuela','Reconoce al grupo de bailarines y coreógrafos que abre el desfile.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Guaruja') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Fantasia','Escuela','Reconocimiento especifico a la creatividad de los diseños de vestuario',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE (nombre = 'Guaruja') AND (tipo = 'Ciudad')));
+
+	--Premios Ciudad Recife
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Samba-Enredo','Escuela','La escuela de samba con mejor Samba-enredo tocada en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Recife') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Bateria','Escuela','La escuela de samba con mejor percusion tocado en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Recife') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Comissão de Frente','Escuela','Reconoce al grupo de bailarines y coreógrafos que abre el desfile.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Recife') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Fantasia','Escuela','Reconocimiento especifico a la creatividad de los diseños de vestuario',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE (nombre = 'Recife') AND (tipo = 'Ciudad')));
+
+	--Premios Ciudad Olinda
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Samba-Enredo','Escuela','La escuela de samba con mejor Samba-enredo tocada en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Olinda') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Bateria','Escuela','La escuela de samba con mejor percusion tocado en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Olinda') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Comissão de Frente','Escuela','Reconoce al grupo de bailarines y coreógrafos que abre el desfile.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Olinda') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Fantasia','Escuela','Reconocimiento especifico a la creatividad de los diseños de vestuario',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE (nombre = 'Olinda') AND (tipo = 'Ciudad')));
+
+	--Premios Ciudad Caruaru
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Destaque del Carnaval','Escuela','Se otorga a las agrupaciones que se destacan por su creatividad y originalidad.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Caruaru') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Interpretación','Escuela','Reconoce a los cantantes o grupos de música que se destacan por su habilidad vocal.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Caruaru') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Vestuario','Escuela','Se premia a las agrupaciones que presentan los trajes más llamativos y auténticos.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Caruaru') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Revelación del Carnaval','Escuela','Reconoce a las agrupaciones emergentes o de reciente formación.',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE (nombre = 'Caruaru') AND (tipo = 'Ciudad')));
+
+	--Premios Ciudad Petrolina
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Samba-Enredo','Escuela','La escuela de samba con mejor Samba-enredo tocada en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Petrolina') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Bateria','Escuela','La escuela de samba con mejor percusion tocado en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Petrolina') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Comissão de Frente','Escuela','Reconoce al grupo de bailarines y coreógrafos que abre el desfile, valorando su creatividad.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Petrolina') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Fantasia','Escuela','Reconocimiento especifico a la creatividad de los diseños de vestuario',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE (nombre = 'Petrolina') AND (tipo = 'Ciudad')));
+
+	--Premios Ciudad Salvador
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Destaque del Carnaval','Escuela','Se otorga a las agrupaciones que se destacan por su creatividad y originalidad.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Salvador') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Interpretación','Escuela','Reconoce a los cantantes o grupos de música que se destacan por su habilidad vocal.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Salvador') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Bloco','Escuela','Se otorga a los blocos (grupos) que se destacan por su animación, participación del público.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Salvador') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Destaque Musical','Escuela','Se otorga a los músicos o grupos musicales que se destacan por su interpretación.',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE (nombre = 'Salvador') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Fantasía','Escuela','Se premia a las agrupaciones que presentan los trajes más llamativos.',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE (nombre = 'Salvador') AND (tipo = 'Ciudad')));
+
+	--Premios Ciudad Porto Seguro
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Destaque del Carnaval','Escuela','Se otorga a las agrupaciones que se destacan por su creatividad.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Porto Seguro') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Interpretación','Escuela','Reconoce a los cantantes o grupos de música que se destacan por su habilidad vocal.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Porto Seguro') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Fantasía','Escuela','Se premia a las agrupaciones que presentan los trajes más llamativos y elaborados.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Porto Seguro') AND (tipo = 'Ciudad')));
+
+	--Premios Ciudad Ilheus
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Samba-Enredo','Escuela','La escuela de samba con mejor Samba-enredo tocada en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Ilheus') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Bateria','Escuela','La escuela de samba con mejor percusion tocado en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Ilheus') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Comissão de Frente','Escuela','Reconoce al grupo de bailarines y coreógrafos que abre el desfile, valorando su creatividad.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Ilheus') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Fantasia','Escuela','Reconocimiento especifico a la creatividad de los diseños de vestuario',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE (nombre = 'Ilheus') AND (tipo = 'Ciudad')));
+
+	--Premios Ciudad Itaparica
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Samba-Enredo','Escuela','La escuela de samba con mejor Samba-enredo tocada en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Itaparica') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Bateria','Escuela','La escuela de samba con mejor percusion tocado en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Itaparica') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Comissão de Frente','Escuela','Reconoce al grupo de bailarines y coreógrafos que abre el desfile, valorando su creatividad.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Itaparica') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Fantasia','Escuela','Reconocimiento especifico a la creatividad de los diseños de vestuario',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE (nombre = 'Itaparica') AND (tipo = 'Ciudad')));
+
+	--Premios Ciudad Sao Luis
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Samba-Enredo','Escuela','La escuela de samba con mejor Samba-enredo tocada en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Sao Luis') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Bateria','Escuela','La escuela de samba con mejor percusion tocado en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Sao Luis') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Comissão de Frente','Escuela','Reconoce al grupo de bailarines y coreógrafos que abre el desfile, valorando su creatividad.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Sao Luis') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Fantasia','Escuela','Reconocimiento especifico a la creatividad de los diseños de vestuario',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE (nombre = 'Sao Luis') AND (tipo = 'Ciudad')));
+
+	--Premios Ciudad Imperatriz
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Samba-Enredo','Escuela','La escuela de samba con mejor Samba-enredo tocada en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Imperatriz') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Bateria','Escuela','La escuela de samba con mejor percusion tocado en el Carnaval',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Imperatriz') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Comissão de Frente','Escuela','Reconoce al grupo de bailarines y coreógrafos que abre el desfile, valorando su creatividad.',
+	  (SELECT codigo FROM MAVlugar 
+	  WHERE (nombre = 'Imperatriz') AND (tipo = 'Ciudad')));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Mejor Fantasia','Escuela','Reconocimiento especifico a la creatividad de los diseños de vestuario',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE (nombre = 'Imperatriz') AND (tipo = 'Ciudad')));
+COMMIT;
+
+
+
+-- TABLA hist_titulo_escuela
+	--GRES Uniao de Jacarepagua
+BEGIN;
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('1998', 'D', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Uniao de Jacarepagua'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2019', 'D', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Uniao de Jacarepagua'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2022', 'Prata', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Uniao de Jacarepagua'));
+
+	--Em cima da hora
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('1966', '3', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Em Cima da Hora'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('1968', '2', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Em Cima da Hora'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('1971', '2', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Em Cima da Hora'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('1978', '3', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Em Cima da Hora'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2006', 'D', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Em Cima da Hora'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2010', 'RJ-3', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Em Cima da Hora'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2013', 'B', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Em Cima da Hora'));
+
+	--Paraiso do Tuiuti 
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('1968', '3', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Paraiso do Tuiuti'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('1980', '2B', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Paraiso do Tuiuti'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('1987', '3', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Paraiso do Tuiuti'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('1997', 'C', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Paraiso do Tuiuti'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2011', 'B', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Paraiso do Tuiuti'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2016', 'A', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Paraiso do Tuiuti'));
+
+	--Arranco
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('1975', '3', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Arranco'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('1984', '2A', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Arranco'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('1988', '2', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Arranco'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('1996', 'B', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Arranco'));
+
+	--Gigante do Samba 
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('1974', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('1992', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('1994', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('1997', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('1998', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('1999', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2000', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2001', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2008', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2009', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2010', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2011', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2012', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2013', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2014', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2015', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2016', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2017', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2018', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2019', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+	--Aguia de ouro 
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('1998', 'Acesso', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Aguia de Ouro'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2009', 'Acesso', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela= 'GRES Aguia de Ouro'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2018', 'Acesso 1', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Aguia de Ouro'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2020', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Aguia de Ouro'));
+
+	--Galería do Ritmo
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2002', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'Galeria do Ritmo'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2003', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'Galeria do Ritmo'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2004', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'Galeria do Ritmo'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2005', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'Galeria do Ritmo'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2006', 'Especial', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'Galeria do Ritmo'));
+
+	--Limonil (NO HA GANADO)
+
+	--Preto Velho
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2010', '1', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Preto Velho'));
+
+INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
+VALUES ('2012', '1', null,(SELECT codigo FROM MAVescuela_samba 
+	   WHERE nombre_escuela = 'GRES Preto Velho'));
+
+COMMIT;
+
+
+--INSERTS HABILIDADES 
+BEGIN;
+
+INSERT INTO MAVhabilidad (nombre_habilidad, descripcion)
+VALUES('Danza','Ejecuta baile de una cultura, transmitiendo la historia y tradiciones a traves del movimiento');
+
+INSERT INTO MAVhabilidad (nombre_habilidad, descripcion)
+VALUES('Canto','Interpreta y canta canciones tradicionales con enfoque a la tecnica vocal y la autenticidad cultural');
+
+INSERT INTO MAVhabilidad (nombre_habilidad, descripcion)
+VALUES('Artes visuales','Crea obras de arte utilizando tecnicas y estilos tradicionales, como pintura, escultura o tallado');
+
+INSERT INTO MAVhabilidad (nombre_habilidad, descripcion)
+VALUES('Musico','Toca instrumentos musical dominando tecnicas y melodias');
+
+INSERT INTO MAVhabilidad (nombre_habilidad, descripcion)
+VALUES('Narrador de historias','Cuenta historias tradicionales, transmitiendo la sabiduria y valores');
+
+INSERT INTO MAVhabilidad (nombre_habilidad, descripcion)
+VALUES('Actuacion','Paticipa en representaciones teatrales sea en forma de teatro con mascaras, etc.');
+
+INSERT INTO MAVhabilidad (nombre_habilidad, descripcion)
+VALUES('Musico','Interpreta y toca instrumentos musical dominando tecnicas y melodias');
+
+INSERT INTO MAVhabilidad (nombre_habilidad, descripcion)
+VALUES('Diseñador','Diseña y confecciona prendas de vestir inspiradas en la moda, con tejidos y patrones autenticos');
+
+COMMIT;
+
+
+--premios especiales a integantes 
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Destaque','Individual','Se entrega a los integrantes que se destaquen por su carisma, vestuario o interpretacion',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Rio de Janeiro' AND tipo = 'Ciudad'));
+
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Musa o muso','Individual','Se entrega a los integrantes que se destaquen por su belleza y presencia en el desfile',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Sao Paulo' AND tipo = 'Ciudad'));
+
+INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+VALUES ('Pasista','Individual','Se entrega a los integrantes que se destaquen por su baile y exhiben su destreza',
+	  (SELECT codigo FROM MAVlugar 
+	   WHERE nombre = 'Sao Paulo' AND tipo = 'Ciudad'));
+
+-- INSERT TELEFONO
+BEGIN;
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_patrocinador_j)
+VALUES ('55', '11', '35849200', (SELECT codigo FROM MAVpatrocinador_juridico WHERE nombre_empresa = 'Veja'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_patrocinador_j)
+VALUES ('55', '11', '55014655', (SELECT codigo FROM MAVpatrocinador_juridico WHERE nombre_empresa = 'UOL Compass'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_patrocinador_j)
+VALUES ('55', '11', '47293105', (SELECT codigo FROM MAVpatrocinador_juridico WHERE nombre_empresa = 'Troller Veiculo Especiais'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_patrocinador_j)
+VALUES ('54', '11', '43168500', (SELECT codigo FROM MAVpatrocinador_juridico WHERE nombre_empresa = 'Banco Patagonia'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_patrocinador_j)
+VALUES ('55', '11', '45712400', (SELECT codigo FROM MAVpatrocinador_juridico WHERE nombre_empresa = 'Alupar'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_patrocinador_j)
+VALUES ('56', '2', '29410300', (SELECT codigo FROM MAVpatrocinador_juridico WHERE nombre_empresa = 'JHSF Participacoes'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_patrocinador_j)
+VALUES ('55', '11', '37758011', (SELECT codigo FROM MAVpatrocinador_juridico WHERE nombre_empresa = 'Novonor'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_patrocinador_j)
+VALUES ('55', '11', '55044410', (SELECT codigo FROM MAVpatrocinador_juridico WHERE nombre_empresa = 'Gol Linhas Aéreas'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_patrocinador_j)
+VALUES ('55', '11', '40025700', (SELECT codigo FROM MAVpatrocinador_juridico WHERE nombre_empresa = 'LATAM Airlines'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_escuela_samba)
+VALUES ('55', '11', '78200034', (SELECT codigo FROM MAVescuela_samba WHERE nombre_escuela = 'GRES Uniao de Jacarepagua'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_escuela_samba)
+VALUES ('55', '11', '36665862', (SELECT codigo FROM MAVescuela_samba WHERE nombre_escuela = 'GRES Em Cima da Hora'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_escuela_samba)
+VALUES ('55', '21', '966432613', (SELECT codigo FROM MAVescuela_samba WHERE nombre_escuela = 'GRES Paraiso do Tuiuti'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_escuela_samba)
+VALUES ('55', '21', '32711371', (SELECT codigo FROM MAVescuela_samba WHERE nombre_escuela = 'GRES Arranco'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_escuela_samba)
+VALUES ('55', '81', '34444656', (SELECT codigo FROM MAVescuela_samba WHERE nombre_escuela = 'GRES Gigante do Samba'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_escuela_samba)
+VALUES ('55', '11', '38728262', (SELECT codigo FROM MAVescuela_samba WHERE nombre_escuela = 'GRES Aguia de ouro'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_escuela_samba)
+VALUES ('55', '81', '98605845', (SELECT codigo FROM MAVescuela_samba WHERE nombre_escuela = 'Galería do Ritmo'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_escuela_samba)
+VALUES ('55', '81', '57431608', (SELECT codigo FROM MAVescuela_samba WHERE nombre_escuela = 'GRES Limonil'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_escuela_samba)
+VALUES ('55', '81', '34931149', (SELECT codigo FROM MAVescuela_samba WHERE nombre_escuela = 'GRES Preto Velho'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_patrocinador_n)
+VALUES ('58', '424', '2320968', (SELECT codigo FROM MAVpatrocinador_natural WHERE documento_identidad = '20471526'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_patrocinador_n)
+VALUES ('58', '424', '1657675', (SELECT codigo FROM MAVpatrocinador_natural WHERE documento_identidad = '98765430'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_patrocinador_n)
+VALUES ('55', '11', '47820534', (SELECT codigo FROM MAVpatrocinador_natural WHERE documento_identidad = '45678910'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_patrocinador_n)
+VALUES ('55', '11', '65004721', (SELECT codigo FROM MAVpatrocinador_natural WHERE documento_identidad = '78912340'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_patrocinador_n)
+VALUES ('55', '81', '52336807', (SELECT codigo FROM MAVpatrocinador_natural WHERE documento_identidad = '32165490'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_patrocinador_n)
+VALUES ('55', '11', '99510452', (SELECT codigo FROM MAVpatrocinador_natural WHERE documento_identidad = '65498710'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_patrocinador_n)
+VALUES ('55', '11', '85436045', (SELECT codigo FROM MAVpatrocinador_natural WHERE documento_identidad = '98732540'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_patrocinador_n)
+VALUES ('55', '11', '85442047', (SELECT codigo FROM MAVpatrocinador_natural WHERE documento_identidad = '32178540'));
+
+INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono, cod_patrocinador_n)
+VALUES ('55', '81', '45426733', (SELECT codigo FROM MAVpatrocinador_natural WHERE documento_identidad = '98765210'));
+
+COMMIT;
+
+-- INSERT TABLA ROL
+
+BEGIN;
+
+INSERT INTO MAVrol (nombre_rol, descripcion)
+VALUES ('Director de la escuela', 'Es el líder de la escuela y se encarga de coordinar todas las actividades.');
+
+INSERT INTO MAVrol (nombre_rol, descripcion)
+VALUES ('Mestre de batería', 'Es el director musical de la batería.');
+
+INSERT INTO MAVrol (nombre_rol, descripcion)
+VALUES ('Porta-bandeira', 'Es la persona que lleva la bandera de la escuela de samba durante el desfile.');
+
+INSERT INTO MAVrol (nombre_rol, descripcion)
+VALUES ('Mestre-sala', 'Es el bailarín masculino que acompaña a la porta-bandeira durante el desfile.');
+
+INSERT INTO MAVrol (nombre_rol, descripcion)
+VALUES ('Pasista', 'Son los bailarines y bailarinas que conforman el grupo principal de danza de la escuela de samba.');
+
+INSERT INTO MAVrol (nombre_rol, descripcion)
+VALUES ('Comissão de frente', 'Es el grupo de bailarines y coreógrafos que abre el desfile.');
+
+INSERT INTO MAVrol (nombre_rol, descripcion)
+VALUES ('Destaque', 'Son los integrantes destacados de la escuela de samba que llevan trajes más elaborados.');
+
+INSERT INTO MAVrol (nombre_rol, descripcion)
+VALUES ('Baiana', 'Son las mujeres que forman parte de la ala de las baianas.');
+
+INSERT INTO MAVrol (nombre_rol, descripcion)
+VALUES ('Velha Guarda', 'Es el grupo de veteranos de la escuela de samba.');
+
+INSERT INTO MAVrol (nombre_rol, descripcion)
+VALUES ('Artesano y diseñador', 'Son las personas encargadas de crear los trajes, las carrozas y los adornos.');
+
+INSERT INTO MAVrol (nombre_rol, descripcion)
+VALUES ('Coreógrafo', 'Son los encargados de crear las coreografías y rutinas de baile para la escuela de samba.');
+
+INSERT INTO MAVrol (nombre_rol, descripcion)
+VALUES ('Intérprete', 'Son los cantantes que interpretan las canciones durante el desfile de la escuela de samba.');
+
+INSERT INTO MAVrol (nombre_rol, descripcion)
+VALUES ('Maquillador', 'Son los profesionales encargados de maquillar y peinar a los integrantes de la escuela de samba.');
+
+INSERT INTO MAVrol (nombre_rol, descripcion)
+VALUES ('Compositor', 'Son los encargados de crear la música y las letras de los sambas-enredo.');
+
+COMMIT;
+
+--CONSULTAS
+
+-- CONSULTAS TABLA SAMBA
+SELECT * FROM MAVSamba;
+SELECT * FROM MAVSamba WHERE year_carnaval = '2022'; --Obtener sambas del a;o 2022
+SELECT * FROM MAVSamba WHERE tipo = 'Valor 1'; --Obtener sambas de tipo "Valor 1":
+SELECT COUNT(*) AS total_sambas FROM MAVSamba; --Obtener la cantidad total de sambas:
+SELECT * FROM MAVSamba ORDER BY year_carnaval DESC; --Obtener las sambas ordenadas por año de carnaval de forma descendente:
+SELECT * FROM MAVSamba WHERE nombre_cancion LIKE '%samba%'; --Obtener las sambas cuyo nombre de canción contiene la palabra "samba":
+
+
+-- CONSULTAS TABLA INTEGRANTE_ESCUELA
+SELECT * FROM MAVIntegrante_Escuela;
+SELECT * FROM MAVIntegrante_Escuela WHERE nacionalidad = 'Venezuela'; --Integrantes por nacionalidad
+SELECT * FROM MAVIntegrante_Escuela WHERE primer_apellido LIKE '%Silva%'; --Integrantes que contiene la palabra Silva
+SELECT primer_nombre, primer_apellido, fecha_nacimiento, 
+       AGE(CURRENT_DATE, fecha_nacimiento) AS edad 
+FROM MAVIntegrante_Escuela; --Obtener la edad de los integrantes de la escuela:
+SELECT * FROM MAVIntegrante_Escuela WHERE segundo_nombre IS NULL; --Obtener los integrantes cuyo segundo nombre es nulo:
+SELECT * FROM MAVIntegrante_Escuela 
+WHERE fecha_nacimiento < '1990-01-01' AND nacionalidad = 'Argentina'; --Obtener los integrantes que nacieron antes de 1990 y tienen nacionalidad "Argentina":
+
+
+--CONSULTAS TABLA MAVPATROCINADOR_JURIDICO
+SELECT * FROM MAVPatrocinador_Juridico;
+SELECT * FROM MAVPatrocinador_Juridico WHERE mision IS NOT NULL; --Obtener patrocinadores con una misión definida:
+SELECT * FROM MAVPatrocinador_Juridico ORDER BY nombre_empresa; --Obtener los patrocinadores jurídicos ordenados alfabéticamente por nombre de empresa:
+SELECT * FROM MAVPatrocinador_Juridico WHERE contacto_email IS NOT NULL; --Obtener los patrocinadores jurídicos que tienen un correo electrónico de contacto:
+
+
+--CONSULTAS TABLA MAVPATROCINADOR_NATURAL
+SELECT * FROM MAVPatrocinador_Natural;
+SELECT * FROM MAVPatrocinador_Natural WHERE primer_apellido = 'Gómez'; --Obtener patrocinadores naturales con apellido "Gómez":
+SELECT AVG(EXTRACT(YEAR FROM AGE(CURRENT_DATE, fecha_nacimiento))) AS promedio_edad 
+FROM MAVPatrocinador_Natural; --Obtener el promedio de edad de los patrocinadores naturales:
+SELECT * FROM MAVPatrocinador_Natural 
+WHERE segundo_nombre IS NOT NULL AND segundo_apellido IS NOT NULL; --Obtener los patrocinadores naturales que tienen un segundo nombre y un segundo apellido:
+
+
+--CONSULTAS TABLA ESCUELA_SAMBA
+SELECT * FROM MAVEscuela_Samba;
+SELECT * FROM MAV WHERE fecha_fundacion > '2000-01-01'; -- Obtener escuelas de samba fundadas después de 2000:
+SELECT * FROM MAVEscuela_Samba WHERE fecha_fundacion >= CURRENT_DATE - INTERVAL '10 years'; --Obtener las escuelas de samba fundadas en los últimos 10 años:
+SELECT * FROM MAVEscuela_Samba WHERE sede LIKE '%Río%'; --Obtener las escuelas de samba cuya sede contiene la palabra "Río":

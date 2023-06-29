@@ -1,0 +1,31 @@
+.selector{
+    width: 200px;
+    margin-top: 8px;
+}
+
+table {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    border: 3px solid black;
+  }
+  
+  th, td {
+    width: 10%;
+    border: 1px solid black;
+  }
+
+.modal{
+    position: 'absolute';
+    margin: 50vh auto;
+    width: 400px;
+    background-color: 'background.paper';
+    border: 2px solid #000;
+    box-shadow: 24px;
+    padding: 4px;
+  }
+
+.initial-form{
+    margin: auto;
+    width: 35%;
+}
