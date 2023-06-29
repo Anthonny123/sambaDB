@@ -17,6 +17,8 @@ import { getEventoSemAnual, insertEventoSemAnual, deleteEventoSemAnual, updateEv
 import { getHistPatrocinador, insertHistPatrocinador, deleteHistPatrocinador, updateHistPatrocinador } from "../controllers/histPatrocinadorController";
 import { getPatrocinadorDonacion, insertPatrocinadorDonacion, deletePatrocinadorDonacion, updatePatrocinadorDonacion } from "../controllers/patrocinadorDonacionController";
 import { getHistTituloEscuela, insertHistTituloEscuela, deleteHistTituloEscuela, updateHistTituloEscuela } from "../controllers/histTituloEscuelaController";
+import { getOrganizacionCarnaval, insertOrganizacionCarnaval, deleteOrganizacionCarnaval, updateOrganizacionCarnaval } from "../controllers/organizacionCarnavalController";
+import { getGanador, insertGanador, deleteGanador, updateGanador } from "../controllers/ganadorController";
 
 const sambaRouter = express.Router();
 const escuelaSambaRouter = express.Router();
@@ -34,6 +36,20 @@ const eventoSemAnualRouter = express.Router()
 const histPatrocinadorRouter = express.Router();
 const patrocinadorDonacionRouter = express.Router();
 const histTituloEscuelaRouter = express.Router();
+const organizacionCarnavalRouter = express.Router();
+const ganadorRouter = express.Router();
+
+/* RUTA GANADORES */
+ganadorRouter.route('/obtener-ganador').get(getGanador)
+ganadorRouter.route('/insertar-ganador').post(insertGanador)
+ganadorRouter.route('/eliminar-ganador/:cpe/:ano').delete(getGanador)
+ganadorRouter.route('/actualizar-ganador/:cpe/:ano').put(getGanador)
+
+/* RUTA ORGANIZACION CARNAVAL */
+organizacionCarnavalRouter.route('/obtener-organizacion-carnaval').get(getOrganizacionCarnaval)
+organizacionCarnavalRouter.route('/insertar-organizacion-carnaval').post(insertOrganizacionCarnaval)
+organizacionCarnavalRouter.route('/eliminar-organizacion-carnaval').delete(deleteOrganizacionCarnaval)
+organizacionCarnavalRouter.route('/actualizar-organizacion-carnaval/:ano/:ces/:cie/:fi/:cr').put(updateOrganizacionCarnaval)
 
 /* RUTA HISTORICO TITULO ESCUELA */
 histTituloEscuelaRouter.route('/obtener-historico-titulo-escuela').get(getHistTituloEscuela)
@@ -52,7 +68,7 @@ patrocinadorDonacionRouter.route('/actualizar-patrocinador-donacion/:id').put(up
 histPatrocinadorRouter.route('/obtener-historico-patrocinador').get(getHistPatrocinador)
 histPatrocinadorRouter.route('/insertar-historico-patrocinador').post(insertHistPatrocinador)
 histPatrocinadorRouter.route('/eliminar-historico-patrocinador/:id').delete(deleteHistPatrocinador)
-histPatrocinadorRouter.route('/actualizar-historico-patrocinador/:id').put(getHistPatrocinador)
+histPatrocinadorRouter.route('/actualizar-historico-patrocinador/:id').put(updateHistPatrocinador)
 
 
 /* RUTA EVENTOS SEMANALES ANUALES */
@@ -147,4 +163,4 @@ export default [sambaRouter, escuelaSambaRouter, integranteEscuelaSambaRouter, p
      patrocinadorNaturalRouter, habilidadRouter, colorRouter, rolRouter,
       lugarRouter, premioEspecialRouter, telefonoRouter,
        histIntegranteRouter, eventoSemAnualRouter, histPatrocinadorRouter, 
-       patrocinadorDonacionRouter, histTituloEscuelaRouter]
+       patrocinadorDonacionRouter, histTituloEscuelaRouter, organizacionCarnavalRouter, ganadorRouter]

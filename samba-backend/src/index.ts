@@ -18,6 +18,8 @@ import eventoSemAnualRouter from "./routes/routes"
 import histPatrocinadorRouter from "./routes/routes"
 import histPatrocinadorDonacionRouter from "./routes/routes"
 import histTituloEscuelaRouter from "./routes/routes"
+import organizacionCarnavalRouter from "./routes/routes"
+import ganadorRouter from "./routes/routes"
 
 // Creación de la aplicación Express
 const app = express();
@@ -41,6 +43,8 @@ app.use('/evento-semanal-anual', eventoSemAnualRouter)
 app.use('/historico-patrocinador', histPatrocinadorRouter)
 app.use('/historico-patrocinador-donador', histPatrocinadorDonacionRouter)
 app.use('/historico-titulo-escuela', histTituloEscuelaRouter)
+app.use('/organizacion-carnaval', organizacionCarnavalRouter)
+app.use('/ganador', ganadorRouter)
 
 
 // Inicio del servidor

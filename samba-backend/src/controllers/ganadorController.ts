@@ -9,10 +9,10 @@ const pool = new Pool({
     port: 5432,
   });
 
-const getHistTituloEscuela = async (req: Request, res: Response) => {
+const getGanador = async (req: Request, res: Response) => {
   try {
     const client = await pool.connect();
-    const result = await client.query("SELECT * FROM MAVhist_titulo_escuela");
+    const result = await client.query("SELECT * MAVganador");
     const registros = result.rows;
     client.release(true);
     res.status(200).json(registros)
@@ -22,12 +22,12 @@ const getHistTituloEscuela = async (req: Request, res: Response) => {
   }
 };
 
-const insertHistTituloEscuela = async (req: Request, res: Response) => {
+const insertGanador= async (req: Request, res: Response) => {
   try {
     const request = req.body;
     const client = await pool.connect();
-    await client.query(`INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
-                VALUES ($1, $2, $3, $4)`, [request.ano, request.grupo, request.monto_ganado_reales, request.cod_escuela_samba]);
+    await client.query(`INSERT INTO MAVganador (ano, cod_premio_especial, fecha_inicio, cod_escuela_samba_int, cod_integrante_escuela, cod_escuela_samba)
+                VALUES ($1, $2, $3, $4, $5, $6)`, [request.ano, request.cod_premio_especial, request.fecha_inicio, request.cod_escuela_samba_int, request.cod_integrante_escuela, request.cod_escuela_samba]);
     client.release(true)
     res.status(200).json({message:"Registro Satisfactorio"})
   } catch (err) {
@@ -36,11 +36,12 @@ const insertHistTituloEscuela = async (req: Request, res: Response) => {
   }
 };
 
-const deleteHistTituloEscuela = async(req:Request, res:Response)=>{
+const deleteGanador = async(req:Request, res:Response)=>{
   try{
     const params = req.params
+    const request = req.body
     const client = await pool.connect();
-    await client.query('DELETE FROM MAVhist_titulo_escuela WHERE ano = $1, cod_escuela_samba = $2', [params.id, params.ces]);
+    await client.query('DELETE FROM MAVganador WHERE cod_premio_especial = $1, ano = $2', [params.cpe, params.ano]);
     client.release(true)
     res.status(200).json({message:"Dato eliminado de manera satisfactoria"})
   }catch(err){
@@ -49,12 +50,12 @@ const deleteHistTituloEscuela = async(req:Request, res:Response)=>{
   }
 }
 
-const updateHistTituloEscuela = async(req:Request, res:Response)=>{
+const updateGanador= async(req:Request, res:Response)=>{
   try{
     const request = req.body
     const params = req.params
     const client = await pool.connect();
-    await client.query("UPDATE MAVhist_titulo_escuela SET ano = $1, grupo = $2, monto_ganado_reales = $3, cod_escuela_samba = $4 WHERE cod_escuela_samba = $5, ano = $6",[request.ano, request.grupo, request.monto_ganado_reales, request.cod_escuela_samba, params.ces, params.ano]);
+    await client.query("UPDATE MAVganador SET ano = $1, cod_premio_especial = $2, fecha_inicio = $3, cod_escuela_samba_int = $4, cod_integrante_escuela = $5, cod_escuela_samba = $6 WHERE cod_premio_especial = $7, ano = $8",[request.ano, request.cod_premio_especial, request.fecha_inicio, request.cod_escuela_samba_int, request.cod_integrante_escuela, request.cod_escuela_samba, params.cpe, params.ano]);
     client.release(true)
     res.status(200).json({message:"Dato actualizado de manera satisfactoria"})
   }catch(err){
@@ -63,4 +64,4 @@ const updateHistTituloEscuela = async(req:Request, res:Response)=>{
   }
 }
 
-export {getHistTituloEscuela, insertHistTituloEscuela, deleteHistTituloEscuela, updateHistTituloEscuela}
+export {getGanador, insertGanador, deleteGanador, updateGanador}
