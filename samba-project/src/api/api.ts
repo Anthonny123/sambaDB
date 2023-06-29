@@ -12,34 +12,48 @@ export const updateIntegranteEscuelaData = (data:any, id:any)=>{
 }
 
 /* Habilidades */
+export const registrarHabilidad = (habilidad:any)=> axios.post(`${API}/habilidad/insertar-datos-habilidades`, habilidad)
 export const getHabilidades = ()=> axios.get(`${API}/habilidad/obtener-datos-habilidades`)
 
 /* Colores */
 export const getColores = ()=> axios.get(`${API}/color/obtener-datos-colores`)
+export const registrarColor = (color:any)=> axios.post(`${API}/color/insertar-datos-colores`, color)
 
 /* Samba */
 export const getSambas = ()=> axios.get(`${API}/samba/obtener-datos-samba`)
+export const registrarSamba = (samba:any)=> axios.post(`${API}/samba/insertar-datos-samba`, samba)
 
 /* Roles */
 export const getRoles = ()=> axios.get(`${API}/rol/obtener-datos-rol`)
+export const registrarRol = (rol:any)=> axios.post(`${API}/rol/insertar-datos-rol`, rol)
 
 /* Patrocinadores Naturales */
 export const getPatrocinadoresNaturales = ()=> axios.get(`${API}/patrocinador-natural/obtener-datos-patrocinador-natural`)
-
+export const deletePatrocinadoresNaturales = (id:any)=>{
+    axios.delete(`${API}/patrocinador-natural/eliminar-patrocinador-natural/${id}`)
+}
 /*Patrocinadores Juridicos*/
 export const getPatrocinadoresJuridicos = ()=> axios.get(`${API}/patrocinador-juridico/obtener-datos-patrocinador-juridico`)
+export const deletePatrocinadoresJuridicos = (id:any)=>{
+    axios.delete(`${API}/patrocinador-juridico/eliminar-patrocinador-juridico/${id}`)
+}
 
 /* Premios Especiales */
 export const getPremiosEspeciales = ()=> axios.get(`${API}/premio-especial/obtener-datos-premio-especial`)
 
 /* Escuelas de Samba */
 export const getEscuelaSamba = ()=> axios.get(`${API}/escuela-samba/obtener-datos-escuela-samba`)
-
+export const deleteEscuelaSamba = (id:any)=>{
+    axios.delete(`${API}/escuela-samba/eliminar-escuela-samba/${id}`)
+}
 /* Telefonos */
 export const getTelefonos = ()=> axios.get(`${API}/telefono/obtener-datos-telefonos`)
 
 /* Historial de Integrantes */
 export const getHistorialIntegrantes = ()=> axios.get(`${API}/historico-integrante/obtener-datos-historial-integrante`)
+export const deleteHistorialIntegrante = (ces:any,cie:any, fi:any )=>{
+    axios.delete(`${API}/escuela-samba/eliminar-datos-historial-integrante/${ces}/${cie}/${fi}`)
+}
 
 /* Eventos */
 export const getEventos = ()=> axios.get(`${API}/evento-semanal-anual/obtener-datos-evento-sem-anual`)
