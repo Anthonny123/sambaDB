@@ -62,4 +62,17 @@ const updateIntegranteEscuelaSamba = async(req:Request, res:Response)=>{
   }
 }
 
-export {insertDataIntegranteEscuelaSamba, getIntegranteEscuelaData, deleteIntegranteEscuelaSamba, updateIntegranteEscuelaSamba}
+const getNombreEstudiantes = async(req:Request, res: Response)=>{
+  try{
+    const client = await pool.connect();
+    const result = await client.query("SELECT primer_nombre, primer_apellido, codigo FROM MAVintegrante_escuela");
+    const registros = result.rows;
+    client.release(true);
+    res.status(200).json(registros)
+  }catch (err) {
+    console.error("Error al obtener los registros", err);
+    res.status(500).json({ error: "Error al obtener los registros" });
+  }
+}
+
+export {insertDataIntegranteEscuelaSamba, getIntegranteEscuelaData, deleteIntegranteEscuelaSamba, updateIntegranteEscuelaSamba, getNombreEstudiantes}

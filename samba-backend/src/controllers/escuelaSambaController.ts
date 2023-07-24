@@ -26,8 +26,8 @@ const insertEscuelaSamba = async (req: Request, res: Response) => {
   try {
     const request = req.body
     const client = await pool.connect();
-    await client.query(`INSERT INTO MAVescuela_samba (historia, sede, fecha_fundacion, nombre_escuela)
-    VALUES ($1, $2, $3, $4)`, [request.historia, request.sede, request.fecha_fundacion, request.nombre_escuela]);
+    await client.query(`INSERT INTO MAVescuela_samba (historia, sede, fecha_fundacion, nombre_escuela, cod_lugar)
+    VALUES ($1, $2, $3, $4, $5)`, [request.historia, request.sede, request.fecha_fundacion, request.nombre_escuela, parseInt(request.cod_lugar)]);
     client.release(true)
     res.status(200).json({message:"Registro Satisfactorio"})
   } catch (err) {
@@ -62,4 +62,17 @@ const updateEscuelaSamba = async(req:Request, res:Response)=>{
   }
 }
 
-export {getEscuelaSambalData, insertEscuelaSamba, deleteEscuelaSamba, updateEscuelaSamba}
+const getNombreEscuelas = async (req:Request, res:Response)=>{
+  try {
+    const client = await pool.connect();
+    const result = await client.query("SELECT codigo, nombre_escuela FROM MAVescuela_samba");
+    const response = result.rows;
+    client.release(true);
+    res.status(200).json(response)
+  } catch (err) {
+    console.error("Error al obtener los registros", err);
+    res.status(500).json({ error: "Error al obtener los registros" });
+  }
+}
+
+export {getEscuelaSambalData, insertEscuelaSamba, deleteEscuelaSamba, updateEscuelaSamba, getNombreEscuelas}

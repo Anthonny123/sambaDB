@@ -62,4 +62,17 @@ const updatePatrocinadorJuridico = async(req:Request, res:Response)=>{
   }
 }
 
-export {getPatrocinadorJuridicoData, insertDataPatrocinadorJuridico, deletePatrocinadorJuridico, updatePatrocinadorJuridico}
+const getNombreDeEmpresa = async (req: Request, res: Response) => {
+  try {
+    const client = await pool.connect();
+    const result = await client.query("SELECT codigo, nombre_empresa FROM MAVpatrocinador_juridico");
+    const registros = result.rows;
+    client.release(true);
+    res.status(200).json(registros)
+  } catch (err) {
+    console.error("Error al obtener los registros", err);
+    res.status(500).json({ error: "Error al obtener los registros" });
+  }
+};
+
+export {getPatrocinadorJuridicoData, insertDataPatrocinadorJuridico, deletePatrocinadorJuridico, updatePatrocinadorJuridico, getNombreDeEmpresa}

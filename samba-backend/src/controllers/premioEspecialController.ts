@@ -26,8 +26,8 @@ const insertPremioEspecial = async (req: Request, res: Response) => {
   try {
     const request = req.body;
     const client = await pool.connect();
-    await client.query(`INSERT INTO MAVpremio_especial (nombre, tipo, descripcion)
-                VALUES ($1, $2, $3)`, [request.nombre, request.tipo, request.descripcion]);
+    await client.query(`INSERT INTO MAVpremio_especial (nombre, tipo, descripcion, cod_lugar)
+                VALUES ($1, $2, $3, $4)`, [request.nombre, request.tipo, request.descripcion, parseInt(request.cod_lugar)]);
     client.release(true)
     res.status(200).json({message:"Registro Satisfactorio"})
   } catch (err) {

@@ -62,4 +62,17 @@ const updatePatrocinadorNatural = async(req:Request, res:Response)=>{
   }
 }
 
-export {getPatrocinadorNaturalData, insertDataPatrocinadorNatural, deletePatrocinadorNatural, updatePatrocinadorNatural}
+const getNatural = async(req:Request, res:Response) =>{
+  try {
+    const client = await pool.connect();
+    const result = await client.query("SELECT codigo, primer_nombre, primer_apellido FROM MAVpatrocinador_natural");
+    const registros = result.rows;
+    client.release(true);
+    res.status(200).json(registros)
+  } catch (err) {
+    console.error("Error al obtener los registros", err);
+    res.status(500).json({ error: "Error al obtener los registros" });
+  }
+}
+
+export {getPatrocinadorNaturalData, insertDataPatrocinadorNatural, deletePatrocinadorNatural, updatePatrocinadorNatural, getNatural}

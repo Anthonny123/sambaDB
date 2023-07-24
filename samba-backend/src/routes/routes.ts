@@ -2,10 +2,10 @@ import express from "express"
 
 //Samba
 import { getSambaData, insertData, deleteSamba, updateSamba } from "../controllers/sambaController";
-import { getIntegranteEscuelaData, insertDataIntegranteEscuelaSamba, deleteIntegranteEscuelaSamba, updateIntegranteEscuelaSamba } from "../controllers/integranteEscuelaController";
-import { getPatrocinadorJuridicoData, insertDataPatrocinadorJuridico, deletePatrocinadorJuridico, updatePatrocinadorJuridico } from "../controllers/patrocinadorJuridicoController";
-import { getPatrocinadorNaturalData, insertDataPatrocinadorNatural, deletePatrocinadorNatural, updatePatrocinadorNatural } from "../controllers/patrocinadorNaturalController";
-import { getEscuelaSambalData, insertEscuelaSamba, deleteEscuelaSamba, updateEscuelaSamba } from "../controllers/escuelaSambaController";
+import { getIntegranteEscuelaData, insertDataIntegranteEscuelaSamba, deleteIntegranteEscuelaSamba, updateIntegranteEscuelaSamba, getNombreEstudiantes } from "../controllers/integranteEscuelaController";
+import { getPatrocinadorJuridicoData, getNombreDeEmpresa, insertDataPatrocinadorJuridico, deletePatrocinadorJuridico, updatePatrocinadorJuridico } from "../controllers/patrocinadorJuridicoController";
+import { getNatural, getPatrocinadorNaturalData, insertDataPatrocinadorNatural, deletePatrocinadorNatural, updatePatrocinadorNatural } from "../controllers/patrocinadorNaturalController";
+import { getEscuelaSambalData, insertEscuelaSamba, deleteEscuelaSamba, updateEscuelaSamba, getNombreEscuelas } from "../controllers/escuelaSambaController";
 import { getHabilidades, insertHabilidad, deleteHabilidad, updateHabilidad } from "../controllers/habilidadController";
 import { getColores, insertColor, deleteColor, updateColor } from "../controllers/colorController";
 import { getRol, insertRol, deleteRol, updateRol } from "../controllers/rolController";
@@ -14,7 +14,7 @@ import { getPremiosEspeciales, insertPremioEspecial, deletePremioEspecial, updat
 import { getTelefonos, insertTelefono, deleteTelefono, updateTelefono } from "../controllers/telefonoController";
 import { getHistIntegrante, insertHistIntegrante, deleteHistIntegrante, updateHistIntegrante } from "../controllers/histIntegrante";
 import { getEventoSemAnual, insertEventoSemAnual, deleteEventoSemAnual, updateEventoSemAnual } from "../controllers/eventoSemAnualController";
-import { getHistPatrocinador, insertHistPatrocinador, deleteHistPatrocinador, updateHistPatrocinador } from "../controllers/histPatrocinadorController";
+import { getHistPatrocinador, insertHistPatrocinador, deleteHistPatrocinador, updateHistPatrocinador, getAllPartners, getCodeAndNameInAllPartners } from "../controllers/histPatrocinadorController";
 import { getPatrocinadorDonacion, insertPatrocinadorDonacion, deletePatrocinadorDonacion, updatePatrocinadorDonacion } from "../controllers/patrocinadorDonacionController";
 import { getHistTituloEscuela, insertHistTituloEscuela, deleteHistTituloEscuela, updateHistTituloEscuela } from "../controllers/histTituloEscuelaController";
 import { getOrganizacionCarnaval, insertOrganizacionCarnaval, deleteOrganizacionCarnaval, updateOrganizacionCarnaval } from "../controllers/organizacionCarnavalController";
@@ -101,6 +101,9 @@ histPatrocinadorRouter.route('/obtener-historico-patrocinador').get(getHistPatro
 histPatrocinadorRouter.route('/insertar-historico-patrocinador').post(insertHistPatrocinador)
 histPatrocinadorRouter.route('/eliminar-historico-patrocinador/:id').delete(deleteHistPatrocinador)
 histPatrocinadorRouter.route('/actualizar-historico-patrocinador/:id').put(updateHistPatrocinador)
+histPatrocinadorRouter.route('/obtener-patrocinadores').get(getAllPartners)
+histPatrocinadorRouter.route('/obtener-nombre-patrocinadores-con-codigo').get(getCodeAndNameInAllPartners)
+
 
 
 /* RUTA EVENTOS SEMANALES ANUALES */
@@ -168,11 +171,13 @@ escuelaSambaRouter.route('/insertar-datos-escuela-samba').post(insertEscuelaSamb
 escuelaSambaRouter.route('/obtener-datos-escuela-samba').get(getEscuelaSambalData)
 escuelaSambaRouter.route('/eliminar-escuela-samba/:id').delete(deleteEscuelaSamba)
 escuelaSambaRouter.route('/actualizar-escuela-samba/:id').put(updateEscuelaSamba)
+escuelaSambaRouter.route('/obtener-nombre-escuelas').get(getNombreEscuelas)
 
 /* RUTAS PARA INTEGRANTE ESCUELA */
 
 integranteEscuelaSambaRouter.route('/insertar-datos-integrante-escuela-samba').post(insertDataIntegranteEscuelaSamba)
 integranteEscuelaSambaRouter.route('/obtener-datos-integrante-escuela-samba').get(getIntegranteEscuelaData)
+integranteEscuelaSambaRouter.route('/obtener-estudiantes-integrante-escuela').get(getNombreEstudiantes)
 integranteEscuelaSambaRouter.route('/eliminar-integrante-escuela-samba/:id').delete(deleteIntegranteEscuelaSamba)
 integranteEscuelaSambaRouter.route('/actualizar-integrante-escuela-samba/:id').put(updateIntegranteEscuelaSamba)
 
@@ -182,14 +187,15 @@ patrocinadorJuridicoRouter.route('/obtener-datos-patrocinador-juridico').get(get
 patrocinadorJuridicoRouter.route('/insertar-datos-patrocinador-juridico').post(insertDataPatrocinadorJuridico)
 patrocinadorJuridicoRouter.route('/eliminar-patrocinador-juridico/:id').delete(deletePatrocinadorJuridico)
 patrocinadorJuridicoRouter.route('/actualizar-patrocinador-juridico/:id').put(updatePatrocinadorJuridico)
+patrocinadorJuridicoRouter.route('/obtener-nombre-patrocinador-juridico').get(getNombreDeEmpresa)
 
 /* RUTAS PARA PATROCINADOR NATURAL */
 
 patrocinadorNaturalRouter.route('/obtener-datos-patrocinador-natural').get(getPatrocinadorNaturalData)
 patrocinadorNaturalRouter.route('/insertar-datos-patrocinador-natural').post(insertDataPatrocinadorNatural)
-patrocinadorJuridicoRouter.route('/eliminar-patrocinador-natural/:id').delete(deletePatrocinadorNatural);
-patrocinadorJuridicoRouter.route('/actualizar-patrocinador-natural/:id').put(updatePatrocinadorNatural)
-
+patrocinadorNaturalRouter.route('/eliminar-patrocinador-natural/:id').delete(deletePatrocinadorNatural);
+patrocinadorNaturalRouter.route('/actualizar-patrocinador-natural/:id').put(updatePatrocinadorNatural)
+patrocinadorNaturalRouter.route('/obtener-nombre-personas-naturales').get(getNatural)
 
 export default [sambaRouter, escuelaSambaRouter, integranteEscuelaSambaRouter, patrocinadorJuridicoRouter,
      patrocinadorNaturalRouter, habilidadRouter, colorRouter, rolRouter,

@@ -27,12 +27,15 @@ const insertHistTituloEscuela = async (req: Request, res: Response) => {
     const request = req.body;
     const client = await pool.connect();
     await client.query(`INSERT INTO MAVhist_titulo_escuela (ano, grupo, monto_ganado_reales, cod_escuela_samba)
-                VALUES ($1, $2, $3, $4)`, [request.ano, request.grupo, request.monto_ganado_reales, request.cod_escuela_samba]);
+                VALUES ($1, $2, $3, $4)`, [parseInt(request.ano.split('-')[0]), request.grupo, parseInt(request.monto_ganado_reales), request.cod_escuela_samba]);
     client.release(true)
     res.status(200).json({message:"Registro Satisfactorio"})
-  } catch (err) {
-    console.error("Error al insertar datos", err);
-    res.status(500).json({ error: "Error al insertar datos" });
+  } catch (err:any) {
+    if(err.message === "llave duplicada viola restricción de unicidad «pk_hist_titulo_escuela»"){
+      res.status(409).json({ error: "Ya existe este registro" });
+    }else{
+      res.status(500).json({ error: err.message });
+    }
   }
 };
 

@@ -27,7 +27,7 @@ const insertHistIntegrante = async (req: Request, res: Response) => {
     const request = req.body;
     const client = await pool.connect();
     await client.query(`INSERT INTO MAVhist_integrante (fecha_inicio, fecha_fin, autoridad, cod_escuela_samba, cod_integrante_escuela)
-                VALUES ($1, $2, $3, $4, $5)`, [request.fecha_inicio, request.fecha_fin, request.autoridad, request.cod_escuela_samba, request.cod_integrante_escuela]);
+                VALUES ($1, $2, $3, $4, $5)`, [request.fecha_inicio, request.fecha_fin === '' && null, request.autoridad, request.cod_escuela_samba, request.cod_integrante_escuela]);
     client.release(true)
     res.status(200).json({message:"Registro Satisfactorio"})
   } catch (err) {

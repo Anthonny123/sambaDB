@@ -27,7 +27,7 @@ const insertRol = async (req: Request, res: Response) => {
     const request = req.body;
     const client = await pool.connect();
     await client.query(`INSERT INTO MAVrol (nombre_rol, descripcion)
-                VALUES ($1, $2)`, [request.nombre_color]);
+                VALUES ($1, $2)`, [request.nombre_rol, request.descripcion]);
     client.release(true)
     res.status(200).json({message:"Registro Satisfactorio"})
   } catch (err) {

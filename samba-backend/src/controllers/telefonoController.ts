@@ -27,7 +27,7 @@ const insertTelefono = async (req: Request, res: Response) => {
     const request = req.body;
     const client = await pool.connect();
     await client.query(`INSERT INTO MAVtelefono (codigo_internacional, codigo_area, numero_telefono)
-                VALUES ($1, $2, $3)`, [request.nombre_color]);
+                VALUES ($1, $2, $3)`, [request.codigo_internacional, parseInt(request.codigo_area), parseInt(request.numero_telefono)]);
     client.release(true)
     res.status(200).json({message:"Registro Satisfactorio"})
   } catch (err) {
