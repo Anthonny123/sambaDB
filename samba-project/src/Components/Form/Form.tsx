@@ -1,32 +1,30 @@
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import MyForm from "../MyForm/MyForm";
 import Table from "../Table/Table";
 import {
-  registerIntegranteEscuela,
   getIntegranteEscuelaData,
   deleteIntegranteEscuelaData,
-  updateIntegranteEscuelaData,
   /* Habilidades */
   getHabilidades,
-  registrarHabilidad,
+  deleteHabilidades,
   /* Colores */
   getColores,
-  registrarColor,
+  deleteColor,
   /* Samba */
   getSambas,
-  registrarSamba,
+  deleteSamba,
   /* Roles */
   getRoles,
-  registrarRol,
+  deleteRol,
   /* Patrocinadores Naturales */
   getPatrocinadoresNaturales,
   deletePatrocinadoresNaturales,
-  registrarPatrocinadorNatural,
   /* Patrocinadores Juridicos */
   getPatrocinadoresJuridicos,
   deletePatrocinadoresJuridicos,
   /* Premios Especiales */
   getPremiosEspeciales,
+  deletePremioEspecial,
   /* Escuelas de Samba */
   getEscuelaSamba,
   deleteEscuelaSamba,
@@ -56,6 +54,7 @@ import {
   getParentesco,
   /* Lugares */
   getLugares,
+  registrarLugar
 } from "../../api/api";
 import "./style.css";
 import React from "react";
@@ -64,8 +63,8 @@ import Modal from "@mui/material/Modal";
 export default function Form() {
   const [data, setData]: any = useState([]);
   const [idModify, setIdModify]: any = useState(0);
-  const { register, handleSubmit } = useForm();
   const [open, setOpen] = React.useState(false);
+  const [updateData, setUpdateData] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const [currentTable, setCurrentTable]: any = useState(
@@ -97,509 +96,173 @@ export default function Form() {
   ];
 
   const deleteData = async (id: any) => {
+    if (currentTable === "Premios Especiales") {
+      await deletePremioEspecial(id)
+      console.log("Dato eliminado de manera exitosa");
+      setUpdateData(true)
+    }
+    if (currentTable === "Roles") {
+      await deleteRol(id)
+      console.log("Dato eliminado de manera exitosa");
+      setUpdateData(true)
+    }
+    if (currentTable === "Samba") {
+      await deleteSamba(id)
+      console.log("Dato eliminado de manera exitosa");
+      setUpdateData(true)
+    }
+    if (currentTable === "Habilidades") {
+      await deleteHabilidades(id);
+      console.log("Dato eliminado de manera exitosa");
+      setUpdateData(true)
+    }
+    if (currentTable === "Colores") {
+      await deleteColor(id)
+      console.log("Dato eliminado de manera exitosa");
+      setUpdateData(true)
+    }
     if (currentTable === "Integrantes de Escuelas") {
-      console.log(data);
       await deleteIntegranteEscuelaData(id);
       console.log("Dato eliminado de manera exitosa");
+      setUpdateData(true)
     }
     if (currentTable === "Escuelas de Samba") {
-      console.log(data);
       await deleteEscuelaSamba(id);
       console.log("Dato eliminado de manera exitosa");
+      setUpdateData(true)
     }
     if (currentTable === "Patrocinadores Naturales") {
-      console.log(data);
       await deletePatrocinadoresNaturales(id);
       console.log("Dato eliminado de manera exitosa");
+      setUpdateData(true)
     }
     if (currentTable === "Patrocinadores Juridicos") {
-      console.log(data);
       await deletePatrocinadoresJuridicos(id);
       console.log("Dato eliminado de manera exitosa");
+      setUpdateData(true)
     }
   };
 
   useEffect(() => {
     const getData = async () => {
       if (currentTable === "Integrantes de Escuelas") {
-        const res = await getIntegranteEscuelaData().then((e: any) =>
+        await getIntegranteEscuelaData().then((e: any) =>
           setData(e.data)
         );
-        return res;
+        return;
       }
       if (currentTable === "Habilidades") {
-        const res = await getHabilidades().then((e: any) => setData(e.data));
-        return res;
+        await getHabilidades().then((e: any) => setData(e.data));
+        return;
       }
       if (currentTable === "Colores") {
-        const res = await getColores().then((e: any) => setData(e.data));
-        return res;
+        await getColores().then((e: any) => setData(e.data));
+        return;
       }
       if (currentTable === "Samba") {
-        const res = await getSambas().then((e: any) => setData(e.data));
-        return res;
+        await getSambas().then((e: any) => setData(e.data));
+        return;
       }
       if (currentTable === "Roles") {
-        const res = await getRoles().then((e: any) => setData(e.data));
-        return res;
+        await getRoles().then((e: any) => setData(e.data));
+        return;
       }
       if (currentTable === "Patrocinadores Naturales") {
-        const res = await getPatrocinadoresNaturales().then((e: any) =>
+        await getPatrocinadoresNaturales().then((e: any) =>
           setData(e.data)
         );
-        return res;
+        return;
       }
       if (currentTable === "Patrocinadores Juridicos") {
-        const res = await getPatrocinadoresJuridicos().then((e: any) =>
+        await getPatrocinadoresJuridicos().then((e: any) =>
           setData(e.data)
         );
-        return res;
+        return;
       }
       if (currentTable === "Premios Especiales") {
-        const res = await getPremiosEspeciales().then((e: any) =>
+        await getPremiosEspeciales().then((e: any) =>
           setData(e.data)
         );
-        return res;
+        return;
       }
       if (currentTable === "Escuelas de Samba") {
-        const res = await getEscuelaSamba().then((e: any) => setData(e.data));
-        return res;
+        await getEscuelaSamba().then((e: any) => setData(e.data));
+        return;
       }
       if (currentTable === "Telefonos") {
-        const res = await getTelefonos().then((e: any) => setData(e.data));
-        return res;
+        await getTelefonos().then((e: any) => setData(e.data));
+        return;
       }
       if (currentTable === "Historial de Integrantes") {
-        const res = await getHistorialIntegrantes().then((e: any) =>
+        await getHistorialIntegrantes().then((e: any) =>
           setData(e.data)
         );
-        return res;
+        return;
       }
       if (currentTable === "Eventos") {
-        const res = await getEventos().then((e: any) => setData(e.data));
-        return res;
+        await getEventos().then((e: any) => setData(e.data));
+        return;
       }
       if (currentTable === "Historial de Patrocinadores") {
-        const res = await getHistorialPatrocinadores().then((e: any) =>
+        await getHistorialPatrocinadores().then((e: any) =>
           setData(e.data)
         );
-        return res;
+        return;
       }
       if (currentTable === "Donacion de Patrocinadores") {
-        const res = await getDonacionesPatrocinadores().then((e: any) =>
+        await getDonacionesPatrocinadores().then((e: any) =>
           setData(e.data)
         );
-        return res;
+        return
       }
       if (currentTable === "Historial de Titulos de las Escuelas") {
-        const res = await getTitulosEscuelas().then((e: any) =>
+        await getTitulosEscuelas().then((e: any) =>
           setData(e.data)
         );
-        return res;
+        return
       }
       if (currentTable === "Organizacion del Carnaval") {
-        const res = await getOrganizacionCarnaval().then((e: any) =>
+        await getOrganizacionCarnaval().then((e: any) =>
           setData(e.data)
         );
-        return res;
+        return
       }
       if (currentTable === "Ganadores") {
-        const res = await getGanadores().then((e: any) => setData(e.data));
-        return res;
+        await getGanadores().then((e: any) => setData(e.data));
+        return
       }
       if (currentTable === "Colores de Las escuelas") {
-        const res = await getColoresEscuelas().then((e: any) =>
+        await getColoresEscuelas().then((e: any) =>
           setData(e.data)
         );
-        return res;
+        return
       }
       if (currentTable === "Autores") {
         const res = await getAutores().then((e: any) => setData(e.data));
-        return res;
+        return
       }
       if (currentTable === "Habilidades de Integrantes") {
-        const res = await getHabilidadesIntegrantes().then((e: any) =>
+        await getHabilidadesIntegrantes().then((e: any) =>
           setData(e.data)
         );
-        return res;
+        return
       }
       if (currentTable === "Parentescos") {
-        const res = await getParentesco().then((e: any) => setData(e.data));
-        return res;
+        await getParentesco().then((e: any) => setData(e.data));
+        return
       }
       if (currentTable === "Lugares") {
-        const res = await getLugares().then((e: any) => setData(e.data));
-        return res;
+        await getLugares().then((e: any) => setData(e.data));
+        return
       }
     };
     getData();
-  }, [, handleSubmit, currentTable]);
+    setUpdateData(false)
+  }, [currentTable, updateData === true]);
 
   return (
     <div>
-      {currentTable === "Integrantes de Escuelas" ? (
-        <form
-          className="initial-form"
-          onSubmit={handleSubmit(async (values) => {
-            const res = await registerIntegranteEscuela(values);
-          })}
-        >
-          <input
-            type="text"
-            {...register("primer_nombre", { required: true })}
-            placeholder="Primer nombre"
-          />
-          <input
-            type="text"
-            {...register("segundo_nombre")}
-            placeholder="Segundo Nombre"
-          />
-          <input
-            type="text"
-            {...register("primer_apellido", { required: true })}
-            placeholder="Primer Apellido"
-          />
-          <input
-            type="text"
-            {...register("segundo_apellido")}
-            placeholder="Segundo Apellido"
-          />
-          <input
-            type="number"
-            {...register("documento_identidad", { required: true })}
-            placeholder="Documento de Identidad"
-          />
-          <input type="text" {...register("apodo")} placeholder="Apodo" />
-          <input
-            type="date"
-            {...register("fecha_nacimiento", { required: true })}
-            placeholder="Fecha de nacimiento"
-          />
-          <input
-            type="text"
-            {...register("nacionalidad", { required: true })}
-            placeholder="Nacionalidad"
-          />
-          <input type="submit" value="Registrar" />
-        </form>
-      ) : currentTable === "Habilidades" ? (
-        <form
-          className="initial-form"
-          onSubmit={handleSubmit(async (values) => {
-            const res = await registrarHabilidad(values);
-          })}
-        >
-          <input
-            type="text"
-            {...register("nombre_habilidad", { required: true })}
-            placeholder="Nombre Habilidad"
-          />
-          <input
-            type="text"
-            {...register("descripcion")}
-            placeholder="Descripcion"
-          />
-          <input type="submit" value="Registrar" />
-        </form>
-      ) : currentTable === "Colores" ? (
-        <form
-          className="initial-form"
-          onSubmit={handleSubmit(async (values) => {
-            const res = await registrarColor(values);
-          })}
-        >
-          <input
-            type="text"
-            {...register("nombre_color", { required: true })}
-            placeholder="Nombre del Color"
-          />
-          <input type="submit" value="Registrar" />
-        </form>
-      ) : currentTable === "Samba" ? (
-        <form
-          className="initial-form"
-          onSubmit={handleSubmit(async (values) => {
-            const res = await registrarSamba(values);
-          })}
-        >
-          <input
-            type="text"
-            {...register("letra", { required: true })}
-            placeholder="Letra de la cancion"
-          />
-          <input
-            type="text"
-            {...register("nombre_cancion", { required: true })}
-            placeholder="Nombre de la cancion"
-          />
-          <input
-            type="text"
-            {...register("year_carnaval", { required: true })}
-            placeholder="Año del Carnaval"
-          />
-          <input
-            type="text"
-            {...register("tipo", { required: true })}
-            placeholder="Tipo de Samba"
-          />
-          <input type="submit" value="Registrar" />
-        </form>
-      ) : currentTable === "Roles" ? (
-        <form
-          className="initial-form"
-          onSubmit={handleSubmit(async (values) => {
-            const res = await registrarRol(values);
-          })}
-        >
-          <input
-            type="text"
-            {...register("nombre_rol", { required: true })}
-            placeholder="Nombre del Rol"
-          />
-          <input
-            type="text"
-            {...register("descripcion", { required: true })}
-            placeholder="Descripcion del Rol"
-          />
-          <input type="submit" value="Registrar" />
-        </form>
-      ) : currentTable === "Patrocinadores Naturales" ? (
-        <form
-          className="initial-form"
-          onSubmit={handleSubmit(async (values) => {
-            const res = await registrarPatrocinadorNatural(values);
-          })}
-        >
-          <input
-            type="text"
-            {...register("documento_identidad", { required: true })}
-            placeholder="Documento de Identidad"
-          />
-          <input
-            type="text"
-            {...register("primer_nombre", { required: true })}
-            placeholder="Primer Nombre"
-          />
-          <input
-            type="text"
-            {...register("segundo_nombre", { required: true })}
-            placeholder="Segundo Nombre"
-          />
-          <input
-            type="text"
-            {...register("primer_apellido", { required: true })}
-            placeholder="Primer Apellido"
-          />
-          <input
-            type="text"
-            {...register("segundo_apellido", { required: true })}
-            placeholder="Segundo Apellido"
-          />
-          <input
-            type="date"
-            {...register("fecha_nacimiento", { required: true })}
-            placeholder="Fecha de Nacimiento"
-          />
-          <input
-            type="text"
-            {...register("contacto_email", { required: true })}
-            placeholder="Contacto email"
-          />
-          <input type="submit" value="Registrar" />
-        </form>
-      ) : currentTable === "Patrocinadores Juridicos" ? (
-        <form
-          className="initial-form"
-          onSubmit={handleSubmit(async (values) => {
-            const res = await registerIntegranteEscuela(values);
-          })}
-        >
-          <input
-            type="text"
-            {...register("nombre_empresa", { required: true })}
-            placeholder="Nombre de la Empresa"
-          />
-          <input
-            type="text"
-            {...register("contacto_email", { required: true })}
-            placeholder="Contacto de email"
-          />
-          <input
-            type="text"
-            {...register("mision", { required: true })}
-            placeholder="Mision"
-          />
-          <input type="submit" value="Registrar" />
-        </form>
-      ) : currentTable === "Lugares" ? (
-        <form
-          className="initial-form"
-          onSubmit={handleSubmit(async (values) => {
-            const res = await registerIntegranteEscuela(values);
-          })}
-        >
-          <input
-            type="text"
-            {...register("nombre", { required: true })}
-            placeholder="Nombre del lugar"
-          />
-          <input
-            type="text"
-            {...register("tipo", { required: true })}
-            placeholder="Tipo de Ciudad"
-          />
-          <input
-            type="text"
-            {...register("region", { required: true })}
-            placeholder="Region"
-          />
-          <input
-            type="text"
-            {...register("cod_lugar_padre", { required: true })}
-            placeholder="Codigo del padre"
-          />
-          <input type="submit" value="Registrar" />
-        </form>
-      ) : currentTable === "Premios Especiales" ? (
-        <form
-          className="initial-form"
-          onSubmit={handleSubmit(async (values) => {
-            const res = await registerIntegranteEscuela(values);
-          })}
-        >
-          <input
-            type="text"
-            {...register("nombre", { required: true })}
-            placeholder="Nombre del Premio"
-          />
-          <input
-            type="text"
-            {...register("tipo", { required: true })}
-            placeholder="Tipo de Premio"
-          />
-          <input
-            type="text"
-            {...register("descripcion", { required: true })}
-            placeholder="Descripcion"
-          />
-          <input
-            type="text"
-            {...register("cod_lugar", { required: true })}
-            placeholder="Codigo del Lugar"
-          />
-          <input type="submit" value="Registrar" />
-        </form>
-      ) : currentTable === "Escuelas de Samba" ? (
-        <form
-          className="initial-form"
-          onSubmit={handleSubmit(async (values) => {
-            const res = await registerIntegranteEscuela(values);
-          })}
-        >
-          <input
-            type="text"
-            {...register("historia", { required: true })}
-            placeholder="Historia"
-          />
-          <input
-            type="text"
-            {...register("sede", { required: true })}
-            placeholder="Sede"
-          />
-          <input
-            type="date"
-            {...register("fecha_fundacion", { required: true })}
-            placeholder="Fecha de Fundacion"
-          />
-          <input
-            type="text"
-            {...register("nombre_escuela", { required: true })}
-            placeholder="Nombre de la escuela"
-          />
-          <input
-            type="text"
-            {...register("cod_lugar", { required: true })}
-            placeholder="Codigo del Lugar"
-          />
-          <input type="submit" value="Registrar" />
-        </form>
-      ) : currentTable === "Telefonos" ? (
-        <form
-          className="initial-form"
-          onSubmit={handleSubmit(async (values) => {
-            const res = await registerIntegranteEscuela(values);
-          })}
-        >
-          <input
-            type="text"
-            {...register("codigo_internacional", { required: true })}
-            placeholder="Codigo internacional"
-          />
-          <input
-            type="text"
-            {...register("codigo_area", { required: true })}
-            placeholder="Codigo del Area"
-          />
-          <input
-            type="text"
-            {...register("numero_telefono", { required: true })}
-            placeholder="Numeor del telefono"
-          />
-          <input
-            type="text"
-            {...register("cod_escuela_samba", { required: true })}
-            placeholder="Codigo de la escuela de Samba"
-          />
-          <input
-            type="text"
-            {...register("cod_patrocinador_j", { required: true })}
-            placeholder="Codigo del patrocinador Juridico"
-          />
-          <input
-            type="text"
-            {...register("cod_patrocinador_n", { required: true })}
-            placeholder="Codigo del patrocinador Natural"
-          />
-          <input type="submit" value="Registrar" />
-        </form>
-      ) : currentTable === "Historial de Integrantes" ? (
-        <form
-          className="initial-form"
-          onSubmit={handleSubmit(async (values) => {
-            const res = await registerIntegranteEscuela(values);
-          })}
-        >
-          <input
-            type="date"
-            {...register("fecha_inicio", { required: true })}
-            placeholder="Fecha de Inicio"
-          />
-          <input
-            type="date"
-            {...register("fecha_fin", { required: true })}
-            placeholder="Fecha Final"
-          />
-          <input
-            type="text"
-            {...register("autoridad", { required: true })}
-            placeholder="Autoridad"
-          />
-          <input
-            type="text"
-            {...register("cod_escuela_samba", { required: true })}
-            placeholder="Codigo de la escuela de Samba"
-          />
-          <input
-            type="text"
-            {...register("cod_integrante_escuela", { required: true })}
-            placeholder="Codigo del Integrante de la escuela"
-          />
-          <input type="submit" value="Registrar" />
-        </form>
-      ) : (
-        ""
-      )}
-
+      <MyForm currentTable={currentTable} setUpdate={setUpdateData}/>
       <select
         name="tabla"
         value={currentTable}
@@ -623,49 +286,7 @@ export default function Form() {
         aria-describedby="modal-modal-description"
       >
         <div className="modal">
-          <form
-            onSubmit={handleSubmit(async (values) => {
-              const res = await updateIntegranteEscuelaData(values, idModify);
-            })}
-          >
-            <input
-              type="text"
-              {...register("primer_nombre", { required: true })}
-              placeholder="Primer nombre"
-            />
-            <input
-              type="text"
-              {...register("segundo_nombre")}
-              placeholder="Segundo Nombre"
-            />
-            <input
-              type="text"
-              {...register("primer_apellido", { required: true })}
-              placeholder="Primer Apellido"
-            />
-            <input
-              type="text"
-              {...register("segundo_apellido")}
-              placeholder="Segundo Apellido"
-            />
-            <input
-              type="number"
-              {...register("documento_identidad", { required: true })}
-              placeholder="Documento de Identidad"
-            />
-            <input type="text" {...register("apodo")} placeholder="Apodo" />
-            <input
-              type="date"
-              {...register("fecha_nacimiento", { required: true })}
-              placeholder="Fecha de nacimiento"
-            />
-            <input
-              type="text"
-              {...register("nacionalidad", { required: true })}
-              placeholder="Nacionalidad"
-            />
-            <input type="submit" value="Guardar" />
-          </form>
+          
         </div>
       </Modal>
     </div>

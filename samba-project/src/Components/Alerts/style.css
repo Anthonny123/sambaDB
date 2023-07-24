@@ -1,0 +1,41 @@
+.notification {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    background-color: #fff;
+    padding: 16px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    animation: slideInDown 0.5s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .success {
+    background-color: #4caf50;
+    color: #fff;
+  }
+  
+  .error {
+    background-color: #f44336;
+    color: #fff;
+  }
+  
+  .info {
+    background-color: #2196f3;
+    color: #fff;
+  }
+  
+  .message {
+    margin-right: 8px;
+  }
+  
+  .close-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 3px;
+    font-weight: bold;
+  }

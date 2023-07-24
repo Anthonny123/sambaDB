@@ -31,7 +31,7 @@ export default function Table({data, deleteData, handleOpen, setIdModify, curren
         'Premios Especiales':['Codigo', 'Nombre', 'Tipo', 'Descripcion', 'Codigo del Lugar'],
         'Roles':['Codigo', 'Nombre del Rol', 'Descripcion'],
         'Samba':['Codigo', 'Letra', 'Nombre de la Cancion', 'Año del Carnaval', 'tipo'],
-        'Telefonos':['Codigo Internacional', 'Codigo de Area', 'Numero de Telefono', 'Codigo de la escuela de Samba', 'Codigo del Patrocinador Juridico', 'Codigo del Patrocinador Natural']
+        'Telefonos':['Codigo Internacional', 'Codigo de Area', 'Numero de Telefono']
 
     }
     return(
@@ -305,9 +305,6 @@ export default function Table({data, deleteData, handleOpen, setIdModify, curren
                     <td>{e.codigo_internacional}</td>
                     <td>{e.codigo_area}</td>
                     <td>{e.numero_telefono}</td>
-                    <td>{e.cod_escuela_samba}</td>
-                    <td>{e.cod_patrocinador_j}</td>
-                    <td>{e.cod_patrocinador_n}</td>
                     <td>
                       <button
                         id={e.codigo}
